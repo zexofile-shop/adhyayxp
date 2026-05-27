@@ -9,7 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as NewsRouteImport } from './routes/news'
+import { Route as DailyNewsRouteImport } from './routes/daily-news'
+import { Route as CurrentAffairsRouteImport } from './routes/current-affairs'
 import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TestTestIdRouteImport } from './routes/test.$testId'
@@ -18,9 +19,14 @@ import { Route as ApiPublicNewsRouteImport } from './routes/api.public.news'
 import { Route as ApiPublicAffairsRouteImport } from './routes/api.public.affairs'
 import { Route as ApiPublicAffairIdRouteImport } from './routes/api.public.affair.$id'
 
-const NewsRoute = NewsRouteImport.update({
-  id: '/news',
-  path: '/news',
+const DailyNewsRoute = DailyNewsRouteImport.update({
+  id: '/daily-news',
+  path: '/daily-news',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CurrentAffairsRoute = CurrentAffairsRouteImport.update({
+  id: '/current-affairs',
+  path: '/current-affairs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CategoriesRoute = CategoriesRouteImport.update({
@@ -62,7 +68,8 @@ const ApiPublicAffairIdRoute = ApiPublicAffairIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/categories': typeof CategoriesRoute
-  '/news': typeof NewsRoute
+  '/current-affairs': typeof CurrentAffairsRoute
+  '/daily-news': typeof DailyNewsRoute
   '/category/$stream': typeof CategoryStreamRoute
   '/test/$testId': typeof TestTestIdRoute
   '/api/public/affairs': typeof ApiPublicAffairsRoute
@@ -72,7 +79,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/categories': typeof CategoriesRoute
-  '/news': typeof NewsRoute
+  '/current-affairs': typeof CurrentAffairsRoute
+  '/daily-news': typeof DailyNewsRoute
   '/category/$stream': typeof CategoryStreamRoute
   '/test/$testId': typeof TestTestIdRoute
   '/api/public/affairs': typeof ApiPublicAffairsRoute
@@ -83,7 +91,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/categories': typeof CategoriesRoute
-  '/news': typeof NewsRoute
+  '/current-affairs': typeof CurrentAffairsRoute
+  '/daily-news': typeof DailyNewsRoute
   '/category/$stream': typeof CategoryStreamRoute
   '/test/$testId': typeof TestTestIdRoute
   '/api/public/affairs': typeof ApiPublicAffairsRoute
@@ -95,7 +104,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/categories'
-    | '/news'
+    | '/current-affairs'
+    | '/daily-news'
     | '/category/$stream'
     | '/test/$testId'
     | '/api/public/affairs'
@@ -105,7 +115,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/categories'
-    | '/news'
+    | '/current-affairs'
+    | '/daily-news'
     | '/category/$stream'
     | '/test/$testId'
     | '/api/public/affairs'
@@ -115,7 +126,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/categories'
-    | '/news'
+    | '/current-affairs'
+    | '/daily-news'
     | '/category/$stream'
     | '/test/$testId'
     | '/api/public/affairs'
@@ -126,7 +138,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CategoriesRoute: typeof CategoriesRoute
-  NewsRoute: typeof NewsRoute
+  CurrentAffairsRoute: typeof CurrentAffairsRoute
+  DailyNewsRoute: typeof DailyNewsRoute
   CategoryStreamRoute: typeof CategoryStreamRoute
   TestTestIdRoute: typeof TestTestIdRoute
   ApiPublicAffairsRoute: typeof ApiPublicAffairsRoute
@@ -136,11 +149,18 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/news': {
-      id: '/news'
-      path: '/news'
-      fullPath: '/news'
-      preLoaderRoute: typeof NewsRouteImport
+    '/daily-news': {
+      id: '/daily-news'
+      path: '/daily-news'
+      fullPath: '/daily-news'
+      preLoaderRoute: typeof DailyNewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/current-affairs': {
+      id: '/current-affairs'
+      path: '/current-affairs'
+      fullPath: '/current-affairs'
+      preLoaderRoute: typeof CurrentAffairsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/categories': {
@@ -198,7 +218,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CategoriesRoute: CategoriesRoute,
-  NewsRoute: NewsRoute,
+  CurrentAffairsRoute: CurrentAffairsRoute,
+  DailyNewsRoute: DailyNewsRoute,
   CategoryStreamRoute: CategoryStreamRoute,
   TestTestIdRoute: TestTestIdRoute,
   ApiPublicAffairsRoute: ApiPublicAffairsRoute,

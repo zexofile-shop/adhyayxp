@@ -58,10 +58,10 @@ function CategoriesPage() {
             </h2>
           </div>
           <Link
-            to="/news"
+            to="/current-affairs"
             className="hidden items-center gap-1.5 rounded-full border-2 border-ink/10 bg-card px-3.5 py-2 text-xs font-bold text-foreground transition-colors hover:border-foreground sm:inline-flex"
           >
-            Open News <ArrowRight className="h-3.5 w-3.5" />
+            Open <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
         <AffairsNewsPreview />
