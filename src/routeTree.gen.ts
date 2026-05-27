@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as DailyNewsRouteImport } from './routes/daily-news'
+import { Route as CurrentAffairsRouteImport } from './routes/current-affairs'
 import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TestTestIdRouteImport } from './routes/test.$testId'
@@ -17,6 +19,16 @@ import { Route as ApiPublicNewsRouteImport } from './routes/api.public.news'
 import { Route as ApiPublicAffairsRouteImport } from './routes/api.public.affairs'
 import { Route as ApiPublicAffairIdRouteImport } from './routes/api.public.affair.$id'
 
+const DailyNewsRoute = DailyNewsRouteImport.update({
+  id: '/daily-news',
+  path: '/daily-news',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CurrentAffairsRoute = CurrentAffairsRouteImport.update({
+  id: '/current-affairs',
+  path: '/current-affairs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CategoriesRoute = CategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
@@ -56,6 +68,8 @@ const ApiPublicAffairIdRoute = ApiPublicAffairIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/categories': typeof CategoriesRoute
+  '/current-affairs': typeof CurrentAffairsRoute
+  '/daily-news': typeof DailyNewsRoute
   '/category/$stream': typeof CategoryStreamRoute
   '/test/$testId': typeof TestTestIdRoute
   '/api/public/affairs': typeof ApiPublicAffairsRoute
@@ -65,6 +79,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/categories': typeof CategoriesRoute
+  '/current-affairs': typeof CurrentAffairsRoute
+  '/daily-news': typeof DailyNewsRoute
   '/category/$stream': typeof CategoryStreamRoute
   '/test/$testId': typeof TestTestIdRoute
   '/api/public/affairs': typeof ApiPublicAffairsRoute
@@ -75,6 +91,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/categories': typeof CategoriesRoute
+  '/current-affairs': typeof CurrentAffairsRoute
+  '/daily-news': typeof DailyNewsRoute
   '/category/$stream': typeof CategoryStreamRoute
   '/test/$testId': typeof TestTestIdRoute
   '/api/public/affairs': typeof ApiPublicAffairsRoute
@@ -86,6 +104,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/categories'
+    | '/current-affairs'
+    | '/daily-news'
     | '/category/$stream'
     | '/test/$testId'
     | '/api/public/affairs'
@@ -95,6 +115,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/categories'
+    | '/current-affairs'
+    | '/daily-news'
     | '/category/$stream'
     | '/test/$testId'
     | '/api/public/affairs'
@@ -104,6 +126,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/categories'
+    | '/current-affairs'
+    | '/daily-news'
     | '/category/$stream'
     | '/test/$testId'
     | '/api/public/affairs'
@@ -114,6 +138,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CategoriesRoute: typeof CategoriesRoute
+  CurrentAffairsRoute: typeof CurrentAffairsRoute
+  DailyNewsRoute: typeof DailyNewsRoute
   CategoryStreamRoute: typeof CategoryStreamRoute
   TestTestIdRoute: typeof TestTestIdRoute
   ApiPublicAffairsRoute: typeof ApiPublicAffairsRoute
@@ -123,6 +149,20 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/daily-news': {
+      id: '/daily-news'
+      path: '/daily-news'
+      fullPath: '/daily-news'
+      preLoaderRoute: typeof DailyNewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/current-affairs': {
+      id: '/current-affairs'
+      path: '/current-affairs'
+      fullPath: '/current-affairs'
+      preLoaderRoute: typeof CurrentAffairsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/categories': {
       id: '/categories'
       path: '/categories'
@@ -178,6 +218,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CategoriesRoute: CategoriesRoute,
+  CurrentAffairsRoute: CurrentAffairsRoute,
+  DailyNewsRoute: DailyNewsRoute,
   CategoryStreamRoute: CategoryStreamRoute,
   TestTestIdRoute: TestTestIdRoute,
   ApiPublicAffairsRoute: ApiPublicAffairsRoute,
@@ -187,13 +229,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
