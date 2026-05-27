@@ -1,13 +1,13 @@
-// Light client for testegy.com Current Affairs + Daily News.
-// We fetch enough pages up-front so the UI never shows a partial-failure.
+// Light client for Current Affairs + Daily News.
+// We proxy testegy.com through our own /api/public/* routes to bypass CORS.
 
-const BASE = "https://testegy.com/api/v1";
+const BASE = "/api/public";
 
 export type AffairListItem = {
   id: number;
   title: string;
-  createdAt: string; // raw timestamp
-  date: string; // YYYY-MM-DD
+  createdAt: string;
+  date: string;
 };
 
 export type NewsItem = {
@@ -22,7 +22,7 @@ export type AffairDetail = {
   id: number;
   title: string;
   date: string;
-  blocks: string[]; // raw HTML blocks
+  blocks: string[];
 };
 
 async function getJSON(url: string): Promise<any> {
@@ -37,12 +37,9 @@ function absImg(p: string | null | undefined): string | null {
   return `https://testegy.com${p}`;
 }
 
-/** Fetch all affairs across `pages` pages (oldest API returns newest first). */
 export async function fetchAffairs(pages = 3): Promise<AffairListItem[]> {
   const reqs = Array.from({ length: pages }, (_, i) =>
-    getJSON(`${BASE}/currentAffairs?action=get_all_current_affairs&page=${i + 1}`).catch(
-      () => null,
-    ),
+    getJSON(`${BASE}/affairs?page=${i + 1}`).catch(() => null),
   );
   const all = await Promise.all(reqs);
   const out: AffairListItem[] = [];
@@ -57,15 +54,12 @@ export async function fetchAffairs(pages = 3): Promise<AffairListItem[]> {
       });
     }
   }
-  // de-dup by id
   const seen = new Set<number>();
   return out.filter((a) => (seen.has(a.id) ? false : (seen.add(a.id), true)));
 }
 
 export async function fetchAffairById(id: number): Promise<AffairDetail> {
-  const r = await getJSON(
-    `${BASE}/currentAffairs?action=get_single_current_affair_by_id&id=${id}`,
-  );
+  const r = await getJSON(`${BASE}/affair/${id}`);
   const d = r?.result?.data ?? {};
   let blocks: string[] = [];
   try {
@@ -90,9 +84,7 @@ export async function fetchAffairById(id: number): Promise<AffairDetail> {
 
 export async function fetchNews(pages = 2): Promise<NewsItem[]> {
   const reqs = Array.from({ length: pages }, (_, i) =>
-    getJSON(`${BASE}/currentNews?action=get_all_current_news&page=${i + 1}`).catch(
-      () => null,
-    ),
+    getJSON(`${BASE}/news?page=${i + 1}`).catch(() => null),
   );
   const all = await Promise.all(reqs);
   const out: NewsItem[] = [];
@@ -113,6 +105,5 @@ export async function fetchNews(pages = 2): Promise<NewsItem[]> {
 }
 
 export function newsDate(iso: string): string {
-  // "YYYY-MM-DD" from "2026-05-26 14:09:58+00"
   return iso?.slice(0, 10) ?? "";
 }
