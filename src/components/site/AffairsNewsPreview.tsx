@@ -51,7 +51,7 @@ export function AffairsNewsPreview() {
             </div>
           </div>
           <Link
-            to="/news"
+            to="/current-affairs"
             className="inline-flex items-center gap-1 rounded-full bg-background/10 px-3 py-1.5 text-[11px] font-bold text-background ring-1 ring-background/20 transition-colors hover:bg-background/20"
           >
             View all <ArrowRight className="h-3 w-3" />
@@ -70,7 +70,7 @@ export function AffairsNewsPreview() {
             topAffairs.map((a) => (
               <Link
                 key={a.id}
-                to="/news"
+                to="/current-affairs"
                 className="group flex items-center gap-3 rounded-xl p-3 transition-colors hover:bg-muted/50"
               >
                 <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl border-2 border-ink/10 bg-background">
@@ -113,7 +113,7 @@ export function AffairsNewsPreview() {
             </div>
           </div>
           <Link
-            to="/news"
+            to="/daily-news"
             className="inline-flex items-center gap-1 rounded-full bg-background/10 px-3 py-1.5 text-[11px] font-bold text-background ring-1 ring-background/20 transition-colors hover:bg-background/20"
           >
             View all <ArrowRight className="h-3 w-3" />
@@ -132,7 +132,7 @@ export function AffairsNewsPreview() {
             topNews.map((n) => (
               <Link
                 key={n.id}
-                to="/news"
+                to="/daily-news"
                 className="group flex items-start gap-3 rounded-xl p-3 transition-colors hover:bg-muted/50"
               >
                 {n.image ? (
