@@ -4,7 +4,8 @@ import { fetchTests } from "@/lib/testApi";
 import { buildCategories } from "@/lib/categories";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
-import { ArrowRight, ChevronLeft, Newspaper, Sparkles, Calendar } from "lucide-react";
+import { AffairsNewsPreview } from "@/components/site/AffairsNewsPreview";
+import { ArrowRight, ChevronLeft } from "lucide-react";
 import logoVx from "@/assets/logo-vx.jpg";
 
 export const Route = createFileRoute("/categories")({
@@ -45,7 +46,31 @@ function CategoriesPage() {
         </div>
       </section>
 
+      {/* Current Affairs + Daily News — ABOVE tests, two clean separate boxes */}
+      <section className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 sm:pt-10">
+        <div className="mb-4 flex items-end justify-between">
+          <div>
+            <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
+              Stay current
+            </div>
+            <h2 className="mt-1 font-display text-xl font-bold sm:text-2xl">
+              Today's digest &amp; news
+            </h2>
+          </div>
+          <Link
+            to="/news"
+            className="hidden items-center gap-1.5 rounded-full border-2 border-ink/10 bg-card px-3.5 py-2 text-xs font-bold text-foreground transition-colors hover:border-foreground sm:inline-flex"
+          >
+            Open News <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+        <AffairsNewsPreview />
+      </section>
+
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
+        <div className="mb-5 text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
+          Test categories
+        </div>
         {isLoading ? (
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -90,51 +115,6 @@ function CategoriesPage() {
         )}
       </section>
 
-      {/* Current Affairs + Daily News teaser — visually distinct from test cards */}
-      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6">
-        <div className="relative overflow-hidden rounded-3xl border-2 border-ink bg-gradient-to-br from-foreground via-foreground to-primary p-6 text-background shadow-elevated sm:p-10">
-          <div className="absolute inset-0 grid-bg opacity-15" />
-          <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-primary/40 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-primary-glow/30 blur-3xl" />
-          <div className="relative grid items-center gap-6 sm:grid-cols-[1.3fr_1fr]">
-            <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-background/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-background/85 ring-1 ring-background/20">
-                <Sparkles className="h-3 w-3" /> Beyond tests
-              </span>
-              <h2 className="mt-3 font-display text-2xl font-bold leading-tight sm:text-3xl">
-                Daily News & <span className="text-primary-glow">Current Affairs</span>
-              </h2>
-              <p className="mt-2 max-w-md text-sm text-background/80">
-                Pick any date and read that day's affairs digest with the latest news —
-                curated for JEE, NEET, UPSC and competitive exams.
-              </p>
-              <Link
-                to="/news"
-                className="mt-5 inline-flex items-center gap-2 rounded-full bg-background px-5 py-3 text-xs font-bold text-foreground shadow-soft transition-transform hover:scale-[1.03] active:scale-95"
-              >
-                Explore today's digest
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-2xl border border-background/15 bg-background/10 p-4 backdrop-blur">
-                <Calendar className="h-4 w-4 text-primary-glow" />
-                <div className="mt-2 font-display text-lg font-bold">Date-wise</div>
-                <div className="text-[11px] font-semibold text-background/70">
-                  Jump to any day
-                </div>
-              </div>
-              <div className="rounded-2xl border border-background/15 bg-background/10 p-4 backdrop-blur">
-                <Newspaper className="h-4 w-4 text-primary-glow" />
-                <div className="mt-2 font-display text-lg font-bold">Fresh news</div>
-                <div className="text-[11px] font-semibold text-background/70">
-                  Updated daily
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <Footer />
     </div>
