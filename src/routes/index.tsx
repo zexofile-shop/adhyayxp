@@ -150,7 +150,7 @@ function HomePage() {
             </p>
           </div>
 
-          <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mx-auto mt-10 grid max-w-3xl gap-3 grid-cols-2">
             {[
               { icon: Newspaper, title: "Daily news", desc: "Latest stories, refreshed every day." },
               { icon: Calendar, title: "Current affairs", desc: "Date-wise digests, ready for revision." },
@@ -161,14 +161,14 @@ function HomePage() {
             ].map((f, i) => (
               <div
                 key={f.title}
-                className="rounded-2xl border-2 border-ink/10 bg-card p-4 transition-all hover:-translate-y-0.5 hover:border-foreground sm:p-5"
+                className="rounded-xl border-2 border-ink/10 bg-card p-3 transition-all hover:-translate-y-0.5 hover:border-foreground sm:p-4"
                 style={{ animation: `fade-up 0.45s ${i * 40}ms both` }}
               >
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-foreground text-background">
-                  <f.icon className="h-4.5 w-4.5" />
+                <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-foreground text-background">
+                  <f.icon className="h-4 w-4" />
                 </div>
-                <h3 className="mt-3 font-display text-base font-bold">{f.title}</h3>
-                <p className="mt-1 text-xs text-muted-foreground sm:text-sm">{f.desc}</p>
+                <h3 className="mt-2 font-display text-sm font-bold sm:text-base">{f.title}</h3>
+                <p className="mt-1 text-[11px] leading-snug text-muted-foreground sm:text-xs">{f.desc}</p>
               </div>
             ))}
           </div>
