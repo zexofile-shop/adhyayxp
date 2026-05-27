@@ -14,6 +14,9 @@ import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TestTestIdRouteImport } from './routes/test.$testId'
 import { Route as CategoryStreamRouteImport } from './routes/category.$stream'
+import { Route as ApiPublicNewsRouteImport } from './routes/api.public.news'
+import { Route as ApiPublicAffairsRouteImport } from './routes/api.public.affairs'
+import { Route as ApiPublicAffairIdRouteImport } from './routes/api.public.affair.$id'
 
 const NewsRoute = NewsRouteImport.update({
   id: '/news',
@@ -40,6 +43,21 @@ const CategoryStreamRoute = CategoryStreamRouteImport.update({
   path: '/category/$stream',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicNewsRoute = ApiPublicNewsRouteImport.update({
+  id: '/api/public/news',
+  path: '/api/public/news',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicAffairsRoute = ApiPublicAffairsRouteImport.update({
+  id: '/api/public/affairs',
+  path: '/api/public/affairs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicAffairIdRoute = ApiPublicAffairIdRouteImport.update({
+  id: '/api/public/affair/$id',
+  path: '/api/public/affair/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +65,9 @@ export interface FileRoutesByFullPath {
   '/news': typeof NewsRoute
   '/category/$stream': typeof CategoryStreamRoute
   '/test/$testId': typeof TestTestIdRoute
+  '/api/public/affairs': typeof ApiPublicAffairsRoute
+  '/api/public/news': typeof ApiPublicNewsRoute
+  '/api/public/affair/$id': typeof ApiPublicAffairIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +75,9 @@ export interface FileRoutesByTo {
   '/news': typeof NewsRoute
   '/category/$stream': typeof CategoryStreamRoute
   '/test/$testId': typeof TestTestIdRoute
+  '/api/public/affairs': typeof ApiPublicAffairsRoute
+  '/api/public/news': typeof ApiPublicNewsRoute
+  '/api/public/affair/$id': typeof ApiPublicAffairIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,6 +86,9 @@ export interface FileRoutesById {
   '/news': typeof NewsRoute
   '/category/$stream': typeof CategoryStreamRoute
   '/test/$testId': typeof TestTestIdRoute
+  '/api/public/affairs': typeof ApiPublicAffairsRoute
+  '/api/public/news': typeof ApiPublicNewsRoute
+  '/api/public/affair/$id': typeof ApiPublicAffairIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -71,8 +98,19 @@ export interface FileRouteTypes {
     | '/news'
     | '/category/$stream'
     | '/test/$testId'
+    | '/api/public/affairs'
+    | '/api/public/news'
+    | '/api/public/affair/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/categories' | '/news' | '/category/$stream' | '/test/$testId'
+  to:
+    | '/'
+    | '/categories'
+    | '/news'
+    | '/category/$stream'
+    | '/test/$testId'
+    | '/api/public/affairs'
+    | '/api/public/news'
+    | '/api/public/affair/$id'
   id:
     | '__root__'
     | '/'
@@ -80,6 +118,9 @@ export interface FileRouteTypes {
     | '/news'
     | '/category/$stream'
     | '/test/$testId'
+    | '/api/public/affairs'
+    | '/api/public/news'
+    | '/api/public/affair/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -88,6 +129,9 @@ export interface RootRouteChildren {
   NewsRoute: typeof NewsRoute
   CategoryStreamRoute: typeof CategoryStreamRoute
   TestTestIdRoute: typeof TestTestIdRoute
+  ApiPublicAffairsRoute: typeof ApiPublicAffairsRoute
+  ApiPublicNewsRoute: typeof ApiPublicNewsRoute
+  ApiPublicAffairIdRoute: typeof ApiPublicAffairIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -127,6 +171,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategoryStreamRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/news': {
+      id: '/api/public/news'
+      path: '/api/public/news'
+      fullPath: '/api/public/news'
+      preLoaderRoute: typeof ApiPublicNewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/affairs': {
+      id: '/api/public/affairs'
+      path: '/api/public/affairs'
+      fullPath: '/api/public/affairs'
+      preLoaderRoute: typeof ApiPublicAffairsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/affair/$id': {
+      id: '/api/public/affair/$id'
+      path: '/api/public/affair/$id'
+      fullPath: '/api/public/affair/$id'
+      preLoaderRoute: typeof ApiPublicAffairIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -136,6 +201,9 @@ const rootRouteChildren: RootRouteChildren = {
   NewsRoute: NewsRoute,
   CategoryStreamRoute: CategoryStreamRoute,
   TestTestIdRoute: TestTestIdRoute,
+  ApiPublicAffairsRoute: ApiPublicAffairsRoute,
+  ApiPublicNewsRoute: ApiPublicNewsRoute,
+  ApiPublicAffairIdRoute: ApiPublicAffairIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
