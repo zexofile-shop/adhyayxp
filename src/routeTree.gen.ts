@@ -9,16 +9,24 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PwRouteImport } from './routes/pw'
 import { Route as DailyNewsRouteImport } from './routes/daily-news'
 import { Route as CurrentAffairsRouteImport } from './routes/current-affairs'
 import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TestTestIdRouteImport } from './routes/test.$testId'
 import { Route as CategoryStreamRouteImport } from './routes/category.$stream'
+import { Route as PwTestTestIdRouteImport } from './routes/pw.test.$testId'
 import { Route as ApiPublicNewsRouteImport } from './routes/api.public.news'
 import { Route as ApiPublicAffairsRouteImport } from './routes/api.public.affairs'
+import { Route as ApiPublicPwSplatRouteImport } from './routes/api.public.pw.$'
 import { Route as ApiPublicAffairIdRouteImport } from './routes/api.public.affair.$id'
 
+const PwRoute = PwRouteImport.update({
+  id: '/pw',
+  path: '/pw',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DailyNewsRoute = DailyNewsRouteImport.update({
   id: '/daily-news',
   path: '/daily-news',
@@ -49,6 +57,11 @@ const CategoryStreamRoute = CategoryStreamRouteImport.update({
   path: '/category/$stream',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PwTestTestIdRoute = PwTestTestIdRouteImport.update({
+  id: '/test/$testId',
+  path: '/test/$testId',
+  getParentRoute: () => PwRoute,
+} as any)
 const ApiPublicNewsRoute = ApiPublicNewsRouteImport.update({
   id: '/api/public/news',
   path: '/api/public/news',
@@ -57,6 +70,11 @@ const ApiPublicNewsRoute = ApiPublicNewsRouteImport.update({
 const ApiPublicAffairsRoute = ApiPublicAffairsRouteImport.update({
   id: '/api/public/affairs',
   path: '/api/public/affairs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicPwSplatRoute = ApiPublicPwSplatRouteImport.update({
+  id: '/api/public/pw/$',
+  path: '/api/public/pw/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicAffairIdRoute = ApiPublicAffairIdRouteImport.update({
@@ -70,22 +88,28 @@ export interface FileRoutesByFullPath {
   '/categories': typeof CategoriesRoute
   '/current-affairs': typeof CurrentAffairsRoute
   '/daily-news': typeof DailyNewsRoute
+  '/pw': typeof PwRouteWithChildren
   '/category/$stream': typeof CategoryStreamRoute
   '/test/$testId': typeof TestTestIdRoute
   '/api/public/affairs': typeof ApiPublicAffairsRoute
   '/api/public/news': typeof ApiPublicNewsRoute
+  '/pw/test/$testId': typeof PwTestTestIdRoute
   '/api/public/affair/$id': typeof ApiPublicAffairIdRoute
+  '/api/public/pw/$': typeof ApiPublicPwSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/categories': typeof CategoriesRoute
   '/current-affairs': typeof CurrentAffairsRoute
   '/daily-news': typeof DailyNewsRoute
+  '/pw': typeof PwRouteWithChildren
   '/category/$stream': typeof CategoryStreamRoute
   '/test/$testId': typeof TestTestIdRoute
   '/api/public/affairs': typeof ApiPublicAffairsRoute
   '/api/public/news': typeof ApiPublicNewsRoute
+  '/pw/test/$testId': typeof PwTestTestIdRoute
   '/api/public/affair/$id': typeof ApiPublicAffairIdRoute
+  '/api/public/pw/$': typeof ApiPublicPwSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -93,11 +117,14 @@ export interface FileRoutesById {
   '/categories': typeof CategoriesRoute
   '/current-affairs': typeof CurrentAffairsRoute
   '/daily-news': typeof DailyNewsRoute
+  '/pw': typeof PwRouteWithChildren
   '/category/$stream': typeof CategoryStreamRoute
   '/test/$testId': typeof TestTestIdRoute
   '/api/public/affairs': typeof ApiPublicAffairsRoute
   '/api/public/news': typeof ApiPublicNewsRoute
+  '/pw/test/$testId': typeof PwTestTestIdRoute
   '/api/public/affair/$id': typeof ApiPublicAffairIdRoute
+  '/api/public/pw/$': typeof ApiPublicPwSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -106,33 +133,42 @@ export interface FileRouteTypes {
     | '/categories'
     | '/current-affairs'
     | '/daily-news'
+    | '/pw'
     | '/category/$stream'
     | '/test/$testId'
     | '/api/public/affairs'
     | '/api/public/news'
+    | '/pw/test/$testId'
     | '/api/public/affair/$id'
+    | '/api/public/pw/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/categories'
     | '/current-affairs'
     | '/daily-news'
+    | '/pw'
     | '/category/$stream'
     | '/test/$testId'
     | '/api/public/affairs'
     | '/api/public/news'
+    | '/pw/test/$testId'
     | '/api/public/affair/$id'
+    | '/api/public/pw/$'
   id:
     | '__root__'
     | '/'
     | '/categories'
     | '/current-affairs'
     | '/daily-news'
+    | '/pw'
     | '/category/$stream'
     | '/test/$testId'
     | '/api/public/affairs'
     | '/api/public/news'
+    | '/pw/test/$testId'
     | '/api/public/affair/$id'
+    | '/api/public/pw/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -140,15 +176,24 @@ export interface RootRouteChildren {
   CategoriesRoute: typeof CategoriesRoute
   CurrentAffairsRoute: typeof CurrentAffairsRoute
   DailyNewsRoute: typeof DailyNewsRoute
+  PwRoute: typeof PwRouteWithChildren
   CategoryStreamRoute: typeof CategoryStreamRoute
   TestTestIdRoute: typeof TestTestIdRoute
   ApiPublicAffairsRoute: typeof ApiPublicAffairsRoute
   ApiPublicNewsRoute: typeof ApiPublicNewsRoute
   ApiPublicAffairIdRoute: typeof ApiPublicAffairIdRoute
+  ApiPublicPwSplatRoute: typeof ApiPublicPwSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/pw': {
+      id: '/pw'
+      path: '/pw'
+      fullPath: '/pw'
+      preLoaderRoute: typeof PwRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/daily-news': {
       id: '/daily-news'
       path: '/daily-news'
@@ -191,6 +236,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategoryStreamRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pw/test/$testId': {
+      id: '/pw/test/$testId'
+      path: '/test/$testId'
+      fullPath: '/pw/test/$testId'
+      preLoaderRoute: typeof PwTestTestIdRouteImport
+      parentRoute: typeof PwRoute
+    }
     '/api/public/news': {
       id: '/api/public/news'
       path: '/api/public/news'
@@ -205,6 +257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAffairsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/pw/$': {
+      id: '/api/public/pw/$'
+      path: '/api/public/pw/$'
+      fullPath: '/api/public/pw/$'
+      preLoaderRoute: typeof ApiPublicPwSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/affair/$id': {
       id: '/api/public/affair/$id'
       path: '/api/public/affair/$id'
@@ -215,17 +274,39 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface PwRouteChildren {
+  PwTestTestIdRoute: typeof PwTestTestIdRoute
+}
+
+const PwRouteChildren: PwRouteChildren = {
+  PwTestTestIdRoute: PwTestTestIdRoute,
+}
+
+const PwRouteWithChildren = PwRoute._addFileChildren(PwRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CategoriesRoute: CategoriesRoute,
   CurrentAffairsRoute: CurrentAffairsRoute,
   DailyNewsRoute: DailyNewsRoute,
+  PwRoute: PwRouteWithChildren,
   CategoryStreamRoute: CategoryStreamRoute,
   TestTestIdRoute: TestTestIdRoute,
   ApiPublicAffairsRoute: ApiPublicAffairsRoute,
   ApiPublicNewsRoute: ApiPublicNewsRoute,
   ApiPublicAffairIdRoute: ApiPublicAffairIdRoute,
+  ApiPublicPwSplatRoute: ApiPublicPwSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
