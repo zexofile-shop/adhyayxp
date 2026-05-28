@@ -17,6 +17,7 @@ import { Route as TestTestIdRouteImport } from './routes/test.$testId'
 import { Route as CategoryStreamRouteImport } from './routes/category.$stream'
 import { Route as ApiPublicNewsRouteImport } from './routes/api.public.news'
 import { Route as ApiPublicAffairsRouteImport } from './routes/api.public.affairs'
+import { Route as ApiPublicPwSplatRouteImport } from './routes/api.public.pw.$'
 import { Route as ApiPublicAffairIdRouteImport } from './routes/api.public.affair.$id'
 
 const DailyNewsRoute = DailyNewsRouteImport.update({
@@ -59,6 +60,11 @@ const ApiPublicAffairsRoute = ApiPublicAffairsRouteImport.update({
   path: '/api/public/affairs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPwSplatRoute = ApiPublicPwSplatRouteImport.update({
+  id: '/api/public/pw/$',
+  path: '/api/public/pw/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicAffairIdRoute = ApiPublicAffairIdRouteImport.update({
   id: '/api/public/affair/$id',
   path: '/api/public/affair/$id',
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/api/public/affairs': typeof ApiPublicAffairsRoute
   '/api/public/news': typeof ApiPublicNewsRoute
   '/api/public/affair/$id': typeof ApiPublicAffairIdRoute
+  '/api/public/pw/$': typeof ApiPublicPwSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByTo {
   '/api/public/affairs': typeof ApiPublicAffairsRoute
   '/api/public/news': typeof ApiPublicNewsRoute
   '/api/public/affair/$id': typeof ApiPublicAffairIdRoute
+  '/api/public/pw/$': typeof ApiPublicPwSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/api/public/affairs': typeof ApiPublicAffairsRoute
   '/api/public/news': typeof ApiPublicNewsRoute
   '/api/public/affair/$id': typeof ApiPublicAffairIdRoute
+  '/api/public/pw/$': typeof ApiPublicPwSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/api/public/affairs'
     | '/api/public/news'
     | '/api/public/affair/$id'
+    | '/api/public/pw/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | '/api/public/affairs'
     | '/api/public/news'
     | '/api/public/affair/$id'
+    | '/api/public/pw/$'
   id:
     | '__root__'
     | '/'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/api/public/affairs'
     | '/api/public/news'
     | '/api/public/affair/$id'
+    | '/api/public/pw/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,6 +157,7 @@ export interface RootRouteChildren {
   ApiPublicAffairsRoute: typeof ApiPublicAffairsRoute
   ApiPublicNewsRoute: typeof ApiPublicNewsRoute
   ApiPublicAffairIdRoute: typeof ApiPublicAffairIdRoute
+  ApiPublicPwSplatRoute: typeof ApiPublicPwSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -205,6 +218,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAffairsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/pw/$': {
+      id: '/api/public/pw/$'
+      path: '/api/public/pw/$'
+      fullPath: '/api/public/pw/$'
+      preLoaderRoute: typeof ApiPublicPwSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/affair/$id': {
       id: '/api/public/affair/$id'
       path: '/api/public/affair/$id'
@@ -225,6 +245,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicAffairsRoute: ApiPublicAffairsRoute,
   ApiPublicNewsRoute: ApiPublicNewsRoute,
   ApiPublicAffairIdRoute: ApiPublicAffairIdRoute,
+  ApiPublicPwSplatRoute: ApiPublicPwSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
