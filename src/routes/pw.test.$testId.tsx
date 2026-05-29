@@ -196,18 +196,17 @@ function InstructionsView({
           </div>
         ) : error ? (
           <div className="rounded-2xl border-2 border-destructive/30 bg-destructive/5 p-5 text-sm text-destructive">
-            Couldn't load instructions. You can still proceed to the test.
+            Couldn't load instructions. You can still proceed.
             <div className="mt-3">
-              <button
-                onClick={onProceed}
-                className="rounded-full bg-foreground px-4 py-2 text-xs font-bold uppercase tracking-wider text-background"
-              >
+              <button onClick={onProceed}
+                className="rounded-full bg-foreground px-4 py-2 text-xs font-bold uppercase tracking-wider text-background">
                 Proceed anyway
               </button>
             </div>
           </div>
         ) : data ? (
           <>
+            {/* Test Details */}
             <div className="rounded-2xl border-2 border-ink/10 bg-card p-4 sm:p-6">
               <div className="text-sm font-bold text-foreground">Test Details</div>
               <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -218,18 +217,43 @@ function InstructionsView({
               </div>
             </div>
 
+            {/* Question Status Legend */}
             <div className="mt-4 rounded-2xl border-2 border-ink/10 bg-card p-4 sm:p-6">
-              <div className="text-sm font-bold text-foreground">Test Instructions</div>
-              <div
-                className="prose prose-sm mt-3 max-w-none text-[13px] leading-relaxed text-foreground [&_h4]:mt-3 [&_h4]:text-sm [&_h4]:font-bold [&_p]:my-2 [&_strong]:font-bold"
-                dangerouslySetInnerHTML={{
-                  __html:
-                    data.multiGeneralInstructions?.en ??
-                    "<p>No additional instructions provided.</p>",
-                }}
-              />
+              <div className="text-sm font-bold text-foreground">Question Status Legend</div>
+              <div className="mt-3 space-y-2.5">
+                {[
+                  { color: "bg-gray-300", label: "You have not visited the question yet." },
+                  { color: "bg-red-500", label: "You have not answered the question." },
+                  { color: "bg-green-500", label: "You have answered the question." },
+                  { color: "bg-purple-600", label: "You have NOT answered the question, but have marked it for review." },
+                  { color: "bg-gradient-to-br from-green-500 to-purple-600", label: 'Answered and Marked for Review — will be considered for evaluation.' },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className={`h-7 w-7 shrink-0 rounded ${item.color}`} />
+                    <span className="text-[13px] text-foreground">{item.label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
+            {/* Test Instructions */}
+            {data.multiGeneralInstructions?.en && (
+              <div className="mt-4 rounded-2xl border-2 border-ink/10 bg-card p-4 sm:p-6">
+                <div className="text-sm font-bold text-foreground">Test Instructions</div>
+                <div
+                  className="mt-3 max-w-none text-[13px] leading-relaxed text-foreground
+                    [&_b]:font-bold [&_strong]:font-bold
+                    [&_p]:my-2 [&_br]:block
+                    [&_h4]:mt-4 [&_h4]:text-sm [&_h4]:font-bold
+                    [&_ul]:mt-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1
+                    [&_ol]:mt-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1
+                    [&_li]:text-[13px]"
+                  dangerouslySetInnerHTML={{ __html: data.multiGeneralInstructions.en }}
+                />
+              </div>
+            )}
+
+            {/* Proceed */}
             <div className="mt-4 rounded-2xl border-2 border-ink/10 bg-card p-4 sm:p-6">
               <div className="text-sm font-bold text-foreground">Ready to start?</div>
               <p className="mt-1 text-xs text-muted-foreground">
