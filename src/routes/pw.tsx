@@ -26,14 +26,17 @@ export const Route = createFileRoute("/pw")({
     ],
   }),
   component: PwPage,
-  errorComponent: ({ error }) => (
-    <div className="p-10 text-center text-sm text-muted-foreground">
-      Failed to load: {error.message}
-    </div>
-  ),
-});
-
 function PwPage() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  // If a child route (e.g. /pw/test/$testId) is active, render it instead of the index UI.
+  if (pathname !== "/pw" && pathname !== "/pw/") {
+    return <Outlet />;
+  }
+
+  const [exam, setExam] = useState<(typeof PW_EXAMS)[number]>("IIT-JEE");
+  const [klass, setKlass] = useState<(typeof PW_CLASSES)[number]>("11");
+  const [batch, setBatch] = useState<{ id: string; catId: string; name: string } | null>(null);
+
   const [exam, setExam] = useState<(typeof PW_EXAMS)[number]>("IIT-JEE");
   const [klass, setKlass] = useState<(typeof PW_CLASSES)[number]>("11");
   const [batch, setBatch] = useState<{ id: string; catId: string; name: string } | null>(null);
