@@ -69,6 +69,10 @@ export interface PwInstructions {
   syllabusData?: { en?: string };
   syllabus?: { en?: string };
   generalInstructions?: { en?: string };
+  instructions?: { en?: string };
+  platformInstructions?: { en?: string };
+  testInstructions?: { en?: string };
+  [key: string]: unknown;
 }
 
 export interface PwLeaderboard {
