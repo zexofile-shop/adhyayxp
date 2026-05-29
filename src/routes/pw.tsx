@@ -37,7 +37,7 @@ function PwPage() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const [exam, setExam] = useState<(typeof PW_EXAMS)[number]>("IIT-JEE");
-  const [klass, setKlass] = useState<(typeof PW_CLASSES)[number]>("11");
+  const [klass, setKlass] = useState<(typeof PW_CLASSES)[number]>("12");
   const [batch, setBatch] = useState<{ id: string; catId: string; name: string } | null>(null);
 
 
@@ -129,7 +129,7 @@ function PwPage() {
                 <SelectContent>
                   {PW_CLASSES.map((c) => (
                     <SelectItem key={c} value={c} className="font-semibold">
-                      Class {c}
+                      {c === "Dropper" ? "Dropper" : `Class ${c}`}
                     </SelectItem>
                   ))}
                 </SelectContent>

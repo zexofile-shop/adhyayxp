@@ -97,6 +97,18 @@ export interface PwLeaderboard {
 export const fetchPwLeaderboard = (testId: string) =>
   getJson<PwLeaderboard>(`tests/${encodeURIComponent(testId)}/leaderboard`);
 
-export const PW_EXAMS = ["IIT-JEE", "NEET"] as const;
-export const PW_CLASSES = ["11", "12"] as const;
+export const PW_EXAMS = [
+  "IIT-JEE",
+  "NEET",
+  "UPSC",
+  "SSC",
+  "GATE",
+  "CUET",
+  "Defence",
+  "Banking",
+  "State PSC",
+  "Railways",
+] as const;
+
+export const PW_CLASSES = ["9", "10", "11", "12", "Dropper"] as const;
 
