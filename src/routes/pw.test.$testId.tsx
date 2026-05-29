@@ -162,10 +162,21 @@ function InstructionsView({
     maxDuration: number;
     totalMarks: number;
     totalQuestions: number;
+    startTime?: string;
     multiGeneralInstructions?: { en?: string };
+    syllabusData?: { en?: string };
+    syllabus?: { en?: string };
+    generalInstructions?: { en?: string };
   };
   onProceed: () => void;
 }) {
+  const syllabusHtml =
+    data?.syllabusData?.en ?? data?.syllabus?.en ?? null;
+  const generalHtml =
+    data?.generalInstructions?.en ??
+    data?.multiGeneralInstructions?.en ??
+    null;
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -189,7 +200,7 @@ function InstructionsView({
         </div>
       </section>
 
-      <section className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-8">
+      <section className="mx-auto max-w-4xl space-y-4 px-4 py-6 sm:px-6 sm:py-8">
         {loading ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Fetching instructions…
@@ -206,7 +217,7 @@ function InstructionsView({
           </div>
         ) : data ? (
           <>
-            {/* Test Details */}
+            {/* 1. Test Details */}
             <div className="rounded-2xl border-2 border-ink/10 bg-card p-4 sm:p-6">
               <div className="text-sm font-bold text-foreground">Test Details</div>
               <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -217,44 +228,61 @@ function InstructionsView({
               </div>
             </div>
 
-            {/* Question Status Legend */}
-            <div className="mt-4 rounded-2xl border-2 border-ink/10 bg-card p-4 sm:p-6">
+            {/* 2. Question Status Legend */}
+            <div className="rounded-2xl border-2 border-ink/10 bg-card p-4 sm:p-6">
               <div className="text-sm font-bold text-foreground">Question Status Legend</div>
-              <div className="mt-3 space-y-2.5">
+              <div className="mt-3 space-y-3">
                 {[
                   { color: "bg-gray-300", label: "You have not visited the question yet." },
                   { color: "bg-red-500", label: "You have not answered the question." },
                   { color: "bg-green-500", label: "You have answered the question." },
                   { color: "bg-purple-600", label: "You have NOT answered the question, but have marked it for review." },
-                  { color: "bg-gradient-to-br from-green-500 to-purple-600", label: 'Answered and Marked for Review — will be considered for evaluation.' },
+                  { color: "bg-gradient-to-br from-green-500 to-purple-600", label: "Answered and Marked for Review — will be considered for evaluation." },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <div className={`h-7 w-7 shrink-0 rounded ${item.color}`} />
-                    <span className="text-[13px] text-foreground">{item.label}</span>
+                    <div className={`h-8 w-8 shrink-0 rounded-md ${item.color}`} />
+                    <span className="text-[13px] leading-snug text-foreground">{item.label}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Test Instructions */}
-            {data.multiGeneralInstructions?.en && (
-              <div className="mt-4 rounded-2xl border-2 border-ink/10 bg-card p-4 sm:p-6">
-                <div className="text-sm font-bold text-foreground">Test Instructions</div>
+            {/* 3. Syllabus — if API returns it */}
+            {syllabusHtml && (
+              <div className="rounded-2xl border-2 border-ink/10 bg-card p-4 sm:p-6">
+                <div className="text-sm font-bold text-foreground">Syllabus</div>
                 <div
-                  className="mt-3 max-w-none text-[13px] leading-relaxed text-foreground
+                  className="mt-3 text-[13px] leading-relaxed text-foreground
                     [&_b]:font-bold [&_strong]:font-bold
-                    [&_p]:my-2 [&_br]:block
-                    [&_h4]:mt-4 [&_h4]:text-sm [&_h4]:font-bold
+                    [&_p]:my-1.5 [&_br]:block
+                    [&_h4]:mt-3 [&_h4]:font-bold [&_h4]:text-sm
                     [&_ul]:mt-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1
                     [&_ol]:mt-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1
                     [&_li]:text-[13px]"
-                  dangerouslySetInnerHTML={{ __html: data.multiGeneralInstructions.en }}
+                  dangerouslySetInnerHTML={{ __html: syllabusHtml }}
                 />
               </div>
             )}
 
-            {/* Proceed */}
-            <div className="mt-4 rounded-2xl border-2 border-ink/10 bg-card p-4 sm:p-6">
+            {/* 4. General Instructions */}
+            {generalHtml && (
+              <div className="rounded-2xl border-2 border-ink/10 bg-card p-4 sm:p-6">
+                <div className="text-sm font-bold text-foreground">General Instructions</div>
+                <div
+                  className="mt-3 text-[13px] leading-relaxed text-foreground
+                    [&_b]:font-bold [&_strong]:font-bold
+                    [&_p]:my-1.5 [&_br]:block
+                    [&_h4]:mt-3 [&_h4]:font-bold [&_h4]:text-sm
+                    [&_ul]:mt-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1
+                    [&_ol]:mt-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1
+                    [&_li]:text-[13px]"
+                  dangerouslySetInnerHTML={{ __html: generalHtml }}
+                />
+              </div>
+            )}
+
+            {/* 5. Proceed */}
+            <div className="rounded-2xl border-2 border-ink/10 bg-card p-4 sm:p-6">
               <div className="text-sm font-bold text-foreground">Ready to start?</div>
               <p className="mt-1 text-xs text-muted-foreground">
                 Make sure you have read all the instructions carefully.
@@ -273,7 +301,6 @@ function InstructionsView({
     </div>
   );
 }
-
 function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="rounded-xl border-2 border-ink/10 bg-background p-3">
