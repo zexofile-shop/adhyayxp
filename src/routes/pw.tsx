@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
-import { fetchPwBatches, fetchPwTests, fetchPwFilters } from "@/lib/pwApi";
+import { fetchPwBatches, fetchPwTests, PW_CLASSES, PW_EXAMS } from "@/lib/pwApi";
 import { ArrowRight, ChevronLeft, Clock, FileText, Loader2 } from "lucide-react";
 import {
   Select,
@@ -36,15 +36,10 @@ export const Route = createFileRoute("/pw")({
 function PwPage() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  const [exam, setExam] = useState<string>("IIT-JEE");
-  const [klass, setKlass] = useState<string>("12");
+  const [exam, setExam] = useState<(typeof PW_EXAMS)[number]>("IIT-JEE");
+  const [klass, setKlass] = useState<(typeof PW_CLASSES)[number]>("11");
   const [batch, setBatch] = useState<{ id: string; catId: string; name: string } | null>(null);
 
-  const filters = useQuery({
-    queryKey: ["pw", "filters"],
-    queryFn: () => fetchPwFilters(),
-    staleTime: 1000 * 60 * 30,
-  });
 
   const batches = useQuery({
     queryKey: ["pw", "batches", exam, klass],
@@ -57,16 +52,7 @@ function PwPage() {
     enabled: !!batch,
   });
 
-  const examList = filters.data?.exam ?? [];
-  const classList = filters.data?.class ?? [];
-
-  function formatClass(c: string): string {
-    if (c === "12+") return "12+ / Dropper";
-    if (c === "Graduation") return "Graduation";
-    if (c === "Under Graduation") return "Under Graduation";
-    return `Class ${c}`;
-  }
-
+  // If a child route (e.g. /pw/test/$testId) is active, render it instead.
   if (pathname !== "/pw" && pathname !== "/pw/") {
     return <Outlet />;
   }
@@ -101,15 +87,16 @@ function PwPage() {
             here.
           </p>
 
+          {/* Selectors */}
           <div className="mt-5 grid grid-cols-1 gap-3 sm:max-w-md sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                Exam {filters.isLoading && <Loader2 className="inline h-3 w-3 animate-spin" />}
+                Exam
               </label>
               <Select
                 value={exam}
                 onValueChange={(v) => {
-                  setExam(v);
+                  setExam(v as (typeof PW_EXAMS)[number]);
                   setBatch(null);
                 }}
               >
@@ -117,7 +104,7 @@ function PwPage() {
                   <SelectValue placeholder="Select exam" />
                 </SelectTrigger>
                 <SelectContent>
-                  {examList.map((e) => (
+                  {PW_EXAMS.map((e) => (
                     <SelectItem key={e} value={e} className="font-semibold">
                       {e}
                     </SelectItem>
@@ -132,7 +119,7 @@ function PwPage() {
               <Select
                 value={klass}
                 onValueChange={(v) => {
-                  setKlass(v);
+                  setKlass(v as (typeof PW_CLASSES)[number]);
                   setBatch(null);
                 }}
               >
@@ -140,30 +127,14 @@ function PwPage() {
                   <SelectValue placeholder="Select class" />
                 </SelectTrigger>
                 <SelectContent>
-                  {classList.map((c) => (
+                  {PW_CLASSES.map((c) => (
                     <SelectItem key={c} value={c} className="font-semibold">
-                      {formatClass(c)}
+                      Class {c}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-          </div>
-
-          <div className="mt-4 flex flex-wrap gap-1.5">
-            {classList.slice(0, 5).map((c) => (
-              <button
-                key={c}
-                onClick={() => setKlass(c)}
-                className={`rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide transition-all ${
-                  klass === c
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-foreground hover:text-background"
-                }`}
-              >
-                {formatClass(c)}
-              </button>
-            ))}
           </div>
 
         </div>
