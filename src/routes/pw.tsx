@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
-import { fetchPwBatches, fetchPwTests, PW_CLASSES, PW_EXAMS } from "@/lib/pwApi";
+import { fetchPwBatches, fetchPwFilters, fetchPwTests } from "@/lib/pwApi";
 import { ArrowRight, ChevronLeft, Clock, FileText, Loader2 } from "lucide-react";
 import {
   Select,
@@ -13,7 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import pwLogo from "@/assets/pw-logo.jpg";
-
 
 export const Route = createFileRoute("/pw")({
   head: () => ({
@@ -36,10 +35,18 @@ export const Route = createFileRoute("/pw")({
 function PwPage() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  const [exam, setExam] = useState<(typeof PW_EXAMS)[number]>("IIT-JEE");
-  const [klass, setKlass] = useState<(typeof PW_CLASSES)[number]>("11");
-  const [batch, setBatch] = useState<{ id: string; catId: string; name: string } | null>(null);
+  const filters = useQuery({
+    queryKey: ["pw", "filters"],
+    queryFn: fetchPwFilters,
+    staleTime: 1000 * 60 * 10,
+  });
 
+  const exams = filters.data?.exams ?? ["IIT-JEE", "NEET"];
+  const classes = filters.data?.classes ?? ["11", "12"];
+
+  const [exam, setExam] = useState<string>("IIT-JEE");
+  const [klass, setKlass] = useState<string>("11");
+  const [batch, setBatch] = useState<{ id: string; catId: string; name: string } | null>(null);
 
   const batches = useQuery({
     queryKey: ["pw", "batches", exam, klass],
@@ -52,11 +59,9 @@ function PwPage() {
     enabled: !!batch,
   });
 
-  // If a child route (e.g. /pw/test/$testId) is active, render it instead.
   if (pathname !== "/pw" && pathname !== "/pw/") {
     return <Outlet />;
   }
-
 
   return (
     <div className="min-h-screen bg-background">
@@ -83,60 +88,59 @@ function PwPage() {
             </div>
           </div>
           <p className="mt-2 max-w-xl text-xs text-muted-foreground sm:text-sm">
-            Pick your exam and class to browse all PW batches. Open any test to attempt it right
-            here.
+            Pick your exam and class to browse all PW batches. Open any test to attempt it right here.
           </p>
 
-          {/* Selectors */}
           <div className="mt-5 grid grid-cols-1 gap-3 sm:max-w-md sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
                 Exam
               </label>
-              <Select
-                value={exam}
-                onValueChange={(v) => {
-                  setExam(v as (typeof PW_EXAMS)[number]);
-                  setBatch(null);
-                }}
-              >
-                <SelectTrigger className="h-10 rounded-xl border-2 border-ink/10 bg-card font-bold text-foreground">
-                  <SelectValue placeholder="Select exam" />
-                </SelectTrigger>
-                <SelectContent>
-                  {PW_EXAMS.map((e) => (
-                    <SelectItem key={e} value={e} className="font-semibold">
-                      {e}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {filters.isLoading ? (
+                <div className="h-10 animate-pulse rounded-xl bg-muted" />
+              ) : (
+                <Select
+                  value={exam}
+                  onValueChange={(v) => { setExam(v); setBatch(null); }}
+                >
+                  <SelectTrigger className="h-10 rounded-xl border-2 border-ink/10 bg-card font-bold text-foreground">
+                    <SelectValue placeholder="Select exam" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {exams.map((e) => (
+                      <SelectItem key={e} value={e} className="font-semibold">
+                        {e}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             <div>
               <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
                 Class
               </label>
-              <Select
-                value={klass}
-                onValueChange={(v) => {
-                  setKlass(v as (typeof PW_CLASSES)[number]);
-                  setBatch(null);
-                }}
-              >
-                <SelectTrigger className="h-10 rounded-xl border-2 border-ink/10 bg-card font-bold text-foreground">
-                  <SelectValue placeholder="Select class" />
-                </SelectTrigger>
-                <SelectContent>
-                  {PW_CLASSES.map((c) => (
-                    <SelectItem key={c} value={c} className="font-semibold">
-                      Class {c}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {filters.isLoading ? (
+                <div className="h-10 animate-pulse rounded-xl bg-muted" />
+              ) : (
+                <Select
+                  value={klass}
+                  onValueChange={(v) => { setKlass(v); setBatch(null); }}
+                >
+                  <SelectTrigger className="h-10 rounded-xl border-2 border-ink/10 bg-card font-bold text-foreground">
+                    <SelectValue placeholder="Select class" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {classes.map((c) => (
+                      <SelectItem key={c} value={c} className="font-semibold">
+                        {c.startsWith("Class") ? c : `Class ${c}`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
-
         </div>
       </section>
 
@@ -262,10 +266,7 @@ function SkeletonGrid() {
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
       {Array.from({ length: 8 }).map((_, i) => (
-        <div
-          key={i}
-          className="h-48 animate-pulse rounded-2xl border-2 border-ink/10 bg-muted"
-        />
+        <div key={i} className="h-48 animate-pulse rounded-2xl border-2 border-ink/10 bg-muted" />
       ))}
     </div>
   );
