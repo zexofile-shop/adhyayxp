@@ -172,8 +172,13 @@ function InstructionsView({
 }) {
   const syllabusHtml =
   data?.syllabusData?.en ?? data?.syllabus?.en ?? null;
-const testInstructionsHtml = data?.multiGeneralInstructions?.en ?? null;
-const generalHtml = data?.generalInstructions?.en ?? null;
+const testInstructionsHtml =
+  (data as any)?.instructions?.en ??
+  (data as any)?.platformInstructions?.en ??
+  (data as any)?.testInstructions?.en ?? null;
+const generalHtml =
+  data?.generalInstructions?.en ??
+  data?.multiGeneralInstructions?.en ?? null;
 
   return (
     <div className="min-h-screen bg-background">
