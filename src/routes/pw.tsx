@@ -52,6 +52,12 @@ function PwPage() {
     enabled: !!batch,
   });
 
+  // If a child route (e.g. /pw/test/$testId) is active, render it instead.
+  if (pathname !== "/pw" && pathname !== "/pw/") {
+    return <Outlet />;
+  }
+
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
