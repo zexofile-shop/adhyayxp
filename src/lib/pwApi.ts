@@ -78,5 +78,25 @@ export const fetchPwQuestions = (testId: string) =>
 export const fetchPwSolutions = (testId: string) =>
   getJson<PwSolutionsResponse>(`tests/${encodeURIComponent(testId)}/solutions`);
 
+export interface PwInstructions {
+  _id: string;
+  name: string;
+  maxDuration: number;
+  totalMarks: number;
+  totalQuestions: number;
+  multiGeneralInstructions?: { en?: string };
+}
+export const fetchPwInstructions = (testId: string) =>
+  getJson<PwInstructions>(`tests/${encodeURIComponent(testId)}/instructions`);
+
+export interface PwLeaderboard {
+  _id: string;
+  totalScore: number;
+  rankScores: [number, number][]; // [rank, score]
+}
+export const fetchPwLeaderboard = (testId: string) =>
+  getJson<PwLeaderboard>(`tests/${encodeURIComponent(testId)}/leaderboard`);
+
 export const PW_EXAMS = ["IIT-JEE", "NEET"] as const;
-export const PW_CLASSES = ["11", "12", "Dropper"] as const;
+export const PW_CLASSES = ["11", "12"] as const;
+
