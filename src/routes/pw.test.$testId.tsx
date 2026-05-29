@@ -171,11 +171,9 @@ function InstructionsView({
   onProceed: () => void;
 }) {
   const syllabusHtml =
-    data?.syllabusData?.en ?? data?.syllabus?.en ?? null;
-  const generalHtml =
-    data?.generalInstructions?.en ??
-    data?.multiGeneralInstructions?.en ??
-    null;
+  data?.syllabusData?.en ?? data?.syllabus?.en ?? null;
+const testInstructionsHtml = data?.multiGeneralInstructions?.en ?? null;
+const generalHtml = data?.generalInstructions?.en ?? null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -246,6 +244,23 @@ function InstructionsView({
                 ))}
               </div>
             </div>
+
+            {/* 3. Test Instructions (detailed HTML) */}
+{testInstructionsHtml && (
+  <div className="rounded-2xl border-2 border-ink/10 bg-card p-4 sm:p-6">
+    <div className="text-sm font-bold text-foreground">Test Instructions</div>
+    <div
+      className="mt-3 text-[13px] leading-relaxed text-foreground
+        [&_b]:font-bold [&_strong]:font-bold
+        [&_p]:my-1.5 [&_br]:block
+        [&_h4]:mt-3 [&_h4]:font-bold [&_h4]:text-sm
+        [&_ul]:mt-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1
+        [&_ol]:mt-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1
+        [&_li]:text-[13px] [&_img]:hidden"
+      dangerouslySetInnerHTML={{ __html: testInstructionsHtml }}
+    />
+  </div>
+)}
 
             {/* 3. Syllabus — if API returns it */}
             {syllabusHtml && (
