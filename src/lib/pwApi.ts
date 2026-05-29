@@ -64,7 +64,11 @@ export interface PwInstructions {
   maxDuration: number;
   totalMarks: number;
   totalQuestions: number;
+  startTime?: string;
   multiGeneralInstructions?: { en?: string };
+  syllabusData?: { en?: string };
+  syllabus?: { en?: string };
+  generalInstructions?: { en?: string };
 }
 
 export interface PwLeaderboard {
