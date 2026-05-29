@@ -85,8 +85,19 @@ async function getJson<T>(path: string): Promise<T> {
   return j.data;
 }
 
-export const fetchPwFilters = () =>
-  getJson<PwFilters>("filters");
+export const PW_EXAMS = [
+  "IIT-JEE", "NEET", "BOARD_EXAM", "AE/JE", "Banking",
+  "BPSC", "CA", "COMMERCE", "CSIR NET", "CUET UG",
+  "FOUNDATION", "GATE", "IIT JAM", "LAW", "MBA",
+  "NDA", "NSAT", "OLYMPIAD", "PRE_FOUNDATION", "Railway",
+  "SCHOOL_PREPARATION", "SSC", "UGC NET", "UP Exams",
+  "UPPSC", "UPSC"
+] as const;
+
+export const PW_CLASSES = [
+  "6", "7", "8", "9", "10", "11", "12",
+  "12+ / Dropper", "Graduation", "Under Graduation"
+] as const;
 
 export const fetchPwBatches = (exam: string, klass: string) =>
   getJson<PwBatch[]>(
