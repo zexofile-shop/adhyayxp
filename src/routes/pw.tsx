@@ -88,54 +88,55 @@ function PwPage() {
           </p>
 
           {/* Selectors */}
-          <div className="mt-5 flex flex-wrap gap-4">
+          <div className="mt-5 grid grid-cols-1 gap-3 sm:max-w-md sm:grid-cols-2">
             <div>
-              <div className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+              <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
                 Exam
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {PW_EXAMS.map((e) => (
-                  <button
-                    key={e}
-                    onClick={() => {
-                      setExam(e);
-                      setBatch(null);
-                    }}
-                    className={`rounded-full border-2 px-3 py-1.5 text-xs font-bold transition-colors ${
-                      exam === e
-                        ? "border-foreground bg-foreground text-background"
-                        : "border-ink/10 bg-card text-foreground hover:border-foreground"
-                    }`}
-                  >
-                    {e}
-                  </button>
-                ))}
-              </div>
+              </label>
+              <Select
+                value={exam}
+                onValueChange={(v) => {
+                  setExam(v as (typeof PW_EXAMS)[number]);
+                  setBatch(null);
+                }}
+              >
+                <SelectTrigger className="h-10 rounded-xl border-2 border-ink/10 bg-card font-bold text-foreground">
+                  <SelectValue placeholder="Select exam" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PW_EXAMS.map((e) => (
+                    <SelectItem key={e} value={e} className="font-semibold">
+                      {e}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
-              <div className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+              <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
                 Class
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {PW_CLASSES.map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => {
-                      setKlass(c);
-                      setBatch(null);
-                    }}
-                    className={`rounded-full border-2 px-3 py-1.5 text-xs font-bold transition-colors ${
-                      klass === c
-                        ? "border-foreground bg-foreground text-background"
-                        : "border-ink/10 bg-card text-foreground hover:border-foreground"
-                    }`}
-                  >
-                    {c}
-                  </button>
-                ))}
-              </div>
+              </label>
+              <Select
+                value={klass}
+                onValueChange={(v) => {
+                  setKlass(v as (typeof PW_CLASSES)[number]);
+                  setBatch(null);
+                }}
+              >
+                <SelectTrigger className="h-10 rounded-xl border-2 border-ink/10 bg-card font-bold text-foreground">
+                  <SelectValue placeholder="Select class" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PW_CLASSES.map((c) => (
+                    <SelectItem key={c} value={c} className="font-semibold">
+                      Class {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
+
         </div>
       </section>
 
