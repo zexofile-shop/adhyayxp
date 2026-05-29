@@ -198,7 +198,16 @@ function PwPage() {
                       <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">
                         PW Mock
                       </span>
-                      <span className="text-[10px] font-semibold text-muted-foreground">{t.totalMarks} marks</span>
+                      <div className="text-right">
+  <span className="text-[10px] font-semibold text-muted-foreground block">
+    {t.totalMarks} marks
+  </span>
+  {t.startTime && (
+    <span className="text-[10px] text-muted-foreground block">
+      {new Date(t.startTime).toLocaleDateString()}
+    </span>
+  )}
+</div>
                     </div>
                     <h3 className="mt-3 line-clamp-2 font-display text-sm font-bold leading-snug text-foreground sm:text-base">
                       {t.name}
