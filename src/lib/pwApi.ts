@@ -23,7 +23,7 @@ export interface PwOption {
 
 export interface PwQuestion {
   _id: string;
-  type: string; // "Single" | "Multiple" | "Numerical" | ...
+  type: string;
   questionNumber: number;
   positiveMarks: number;
   negativeMarks: number;
@@ -46,37 +46,17 @@ export interface PwQuestionsResponse {
 
 export interface PwSolutionEntry {
   question: PwQuestion & {
-    solutions: string[]; // option _id(s) considered correct
+    solutions: string[];
     solutionDescription?: { images?: { en?: string } }[];
     topic?: string[];
     images?: { en?: string };
   };
 }
+
 export interface PwSolutionsResponse {
   _id: string;
   questions: PwSolutionEntry[];
 }
-
-async function getJson<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE}/${path}`);
-  if (!res.ok) throw new Error(`PW fetch failed: ${path}`);
-  const j = (await res.json()) as { success: boolean; data: T };
-  return j.data;
-}
-
-export const fetchPwBatches = (exam: string, klass: string) =>
-  getJson<PwBatch[]>(`batches?exam=${encodeURIComponent(exam)}&class=${encodeURIComponent(klass)}`);
-
-export const fetchPwTests = (batchId: string, testCatId: string) =>
-  getJson<PwTestSummary[]>(
-    `tests?batchId=${encodeURIComponent(batchId)}&testCatId=${encodeURIComponent(testCatId)}`,
-  );
-
-export const fetchPwQuestions = (testId: string) =>
-  getJson<PwQuestionsResponse>(`tests/${encodeURIComponent(testId)}/questions`);
-
-export const fetchPwSolutions = (testId: string) =>
-  getJson<PwSolutionsResponse>(`tests/${encodeURIComponent(testId)}/solutions`);
 
 export interface PwInstructions {
   _id: string;
@@ -86,17 +66,46 @@ export interface PwInstructions {
   totalQuestions: number;
   multiGeneralInstructions?: { en?: string };
 }
-export const fetchPwInstructions = (testId: string) =>
-  getJson<PwInstructions>(`tests/${encodeURIComponent(testId)}/instructions`);
 
 export interface PwLeaderboard {
   _id: string;
   totalScore: number;
-  rankScores: [number, number][]; // [rank, score]
+  rankScores: [number, number][];
 }
+
+export interface PwFilters {
+  exams: string[];
+  classes: string[];
+}
+
+async function getJson<T>(path: string): Promise<T> {
+  const res = await fetch(`${BASE}/${path}`);
+  if (!res.ok) throw new Error(`PW fetch failed: ${path}`);
+  const j = (await res.json()) as { success: boolean; data: T };
+  return j.data;
+}
+
+export const fetchPwFilters = () =>
+  getJson<PwFilters>("filters");
+
+export const fetchPwBatches = (exam: string, klass: string) =>
+  getJson<PwBatch[]>(
+    `batches?exam=${encodeURIComponent(exam)}&class=${encodeURIComponent(klass)}`
+  );
+
+export const fetchPwTests = (batchId: string, testCatId: string) =>
+  getJson<PwTestSummary[]>(
+    `tests?batchId=${encodeURIComponent(batchId)}&testCatId=${encodeURIComponent(testCatId)}`
+  );
+
+export const fetchPwQuestions = (testId: string) =>
+  getJson<PwQuestionsResponse>(`tests/${encodeURIComponent(testId)}/questions`);
+
+export const fetchPwSolutions = (testId: string) =>
+  getJson<PwSolutionsResponse>(`tests/${encodeURIComponent(testId)}/solutions`);
+
+export const fetchPwInstructions = (testId: string) =>
+  getJson<PwInstructions>(`tests/${encodeURIComponent(testId)}/instructions`);
+
 export const fetchPwLeaderboard = (testId: string) =>
   getJson<PwLeaderboard>(`tests/${encodeURIComponent(testId)}/leaderboard`);
-
-export const PW_EXAMS = ["IIT-JEE", "NEET"] as const;
-export const PW_CLASSES = ["11", "12"] as const;
-
