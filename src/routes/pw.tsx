@@ -191,44 +191,47 @@ function PwPage() {
             ) : (
               <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {(tests.data ?? []).map((t, i) => (
-                  <Link key={t._id} to="/pw/test/$testId" params={{ testId: t._id }}
-                    className="group flex flex-col rounded-2xl border-2 border-ink/10 bg-card p-4 transition-all hover:-translate-y-0.5 hover:border-foreground hover:shadow-elevated sm:p-5"
-                    style={{ animation: `fade-up 0.35s ${i * 20}ms both` }}>
-                    <div className="flex items-start justify-between gap-2">
-  <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">
-    PW Mock
-  </span>
-</div>
-                    </div>
-                    <h3 className="mt-3 line-clamp-2 font-display text-sm font-bold leading-snug text-foreground sm:text-base">
-                      {t.name}
-                    </h3>
-                    <div className="mt-4 border-t-2 border-dashed border-ink/10 pt-3">
-  <div className="flex items-center justify-between gap-2">
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] font-semibold text-foreground">
-      <span className="inline-flex items-center gap-1">
-        <Clock className="h-3.5 w-3.5 text-primary" />{t.maxDuration}m
+  <Link
+    key={t._id}
+    to="/pw/test/$testId"
+    params={{ testId: t._id }}
+    className="group flex flex-col rounded-2xl border-2 border-ink/10 bg-card p-4 transition-all hover:-translate-y-0.5 hover:border-foreground hover:shadow-elevated sm:p-5"
+    style={{ animation: `fade-up 0.35s ${i * 20}ms both` }}
+  >
+    <div className="flex items-start justify-between gap-2">
+      <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">
+        PW Mock
       </span>
-      <span className="inline-flex items-center gap-1">
-        <FileText className="h-3.5 w-3.5 text-primary" />{t.totalQuestions} Qs
-      </span>
-      <span className="inline-flex items-center gap-1">
-        <Star className="h-3.5 w-3.5 text-primary" />{t.totalMarks} marks
-      </span>
-      {t.startTime && (
-        <span className="inline-flex items-center gap-1">
-          <Calendar className="h-3.5 w-3.5 text-primary" />
-          {new Date(t.startTime).toLocaleDateString()}
-        </span>
-      )}
     </div>
-    <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-foreground text-background transition-transform group-hover:translate-x-0.5">
-      <ArrowRight className="h-3.5 w-3.5" />
-    </span>
-  </div>
-</div>
-                  </Link>
-                ))}
+    <h3 className="mt-3 line-clamp-2 font-display text-sm font-bold leading-snug text-foreground sm:text-base">
+      {t.name}
+    </h3>
+    <div className="mt-4 border-t-2 border-dashed border-ink/10 pt-3">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] font-semibold text-foreground">
+          <span className="inline-flex items-center gap-1">
+            <Clock className="h-3.5 w-3.5 text-primary" />{t.maxDuration}m
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <FileText className="h-3.5 w-3.5 text-primary" />{t.totalQuestions} Qs
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <Star className="h-3.5 w-3.5 text-primary" />{t.totalMarks} marks
+          </span>
+          {t.startTime && (
+            <span className="inline-flex items-center gap-1">
+              <Calendar className="h-3.5 w-3.5 text-primary" />
+              {new Date(t.startTime).toLocaleDateString()}
+            </span>
+          )}
+        </div>
+        <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-foreground text-background transition-transform group-hover:translate-x-0.5">
+          <ArrowRight className="h-3.5 w-3.5" />
+        </span>
+      </div>
+    </div>
+  </Link>
+))}
               </div>
             )}
           </>
