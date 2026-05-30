@@ -7,9 +7,11 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { useEffect } from "react";
 
 import appCss from "../styles.css?url";
 import { PwFloatingIcon } from "@/components/site/PwFloatingIcon";
+import { initDevToolsBlock } from "@/lib/devtools-block";
 
 function NotFoundComponent() {
   return (
@@ -120,6 +122,11 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  // Block DevTools on every page — production only
+  useEffect(() => {
+    initDevToolsBlock();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
