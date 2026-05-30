@@ -1,3 +1,19 @@
 name = "adhyayxp"
 compatibility_date = "2024-11-01"
 compatibility_flags = ["nodejs_compat"]
+
+# ✅ Worker ka entry point — build ke baad yahan se serve hoga
+main = ".worker-build/index.js"
+
+# ✅ Static assets serve karne ke liye
+[assets]
+directory = ".worker-build/assets"
+binding = "ASSETS"
+html_handling = "single-page-application"
+not_found_handling = "single-page-application"
+
+# ✅ Custom domain routing
+routes = [
+  { pattern = "adhyayx.site/*", zone_name = "adhyayx.site" },
+  { pattern = "www.adhyayx.site/*", zone_name = "adhyayx.site" }
+]
