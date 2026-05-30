@@ -54,12 +54,12 @@ function HomePage() {
         <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-12 sm:px-6 sm:pt-20 lg:pb-24">
           <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
             <div style={{ animation: "fade-up 0.5s both" }}>
-              <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink/10 bg-card px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-foreground shadow-soft">
+              <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink/10 bg-card px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-foreground shadow-soft">
                 <GraduationCap className="h-3 w-3 text-primary" />
-                AdhyayX
+                AdhyayX <span className="text-muted-foreground normal-case tracking-normal">:</span> <span className="text-primary">Har Adhyay, Ek Nayi Jeet</span>
               </span>
-              {/* Headline — user-specified format, compact */}
-              <h1 className="mt-4 font-display text-[22px] font-bold leading-[1.2] tracking-tight text-foreground sm:text-[28px] lg:text-[32px]">
+              {/* Headline — user-specified format */}
+              <h1 className="mt-4 font-display text-[26px] font-bold leading-[1.18] tracking-tight text-foreground sm:text-[36px] lg:text-[44px]">
                 Crack <span className="text-primary">JEE, NEET</span>, boards &amp;<br />
                 competitive exams with<br />
                 exam-grade mocks.
@@ -83,6 +83,7 @@ function HomePage() {
                 {[
                   { k: isLoading ? "…" : String(totalTests || 0), v: totalTests === 1 ? "Active test" : "Active tests" },
                   { k: isLoading ? "…" : String(categories.length || 0), v: categories.length === 1 ? "Category" : "Categories" },
+                  { k: "1000+", v: "PW Mock Tests" },
                   { k: "Free", v: "No signup needed" },
                 ].map((s) => (
                   <div key={s.v}>

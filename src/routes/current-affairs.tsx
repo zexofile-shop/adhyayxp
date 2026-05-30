@@ -243,7 +243,25 @@ function AffairBody({ id }: { id: number }) {
           {(data?.blocks ?? []).map((b, i) => (
             <div
               key={i}
-              className="rounded-xl border border-ink/10 bg-background/70 p-3 text-[12px] leading-relaxed text-foreground [&_a]:text-primary [&_a]:underline [&_strong]:text-foreground"
+              className="rounded-xl border-2 border-ink/10 bg-gradient-to-br from-background to-primary/5 p-3.5 text-[13px] leading-relaxed text-foreground
+                [&_a]:font-semibold [&_a]:text-primary [&_a]:underline [&_a]:decoration-primary/40 hover:[&_a]:decoration-primary
+                [&_b]:font-bold [&_b]:text-foreground
+                [&_strong]:font-bold [&_strong]:text-primary
+                [&_em]:not-italic [&_em]:rounded [&_em]:bg-amber-100 [&_em]:px-1 [&_em]:py-0.5 [&_em]:text-amber-900 [&_em]:font-semibold
+                [&_mark]:rounded [&_mark]:bg-amber-200 [&_mark]:px-1 [&_mark]:text-amber-950
+                [&_h1]:mt-2 [&_h1]:mb-1.5 [&_h1]:font-display [&_h1]:text-base [&_h1]:font-bold [&_h1]:text-primary
+                [&_h2]:mt-2 [&_h2]:mb-1.5 [&_h2]:font-display [&_h2]:text-[15px] [&_h2]:font-bold [&_h2]:text-primary
+                [&_h3]:mt-2 [&_h3]:mb-1 [&_h3]:font-display [&_h3]:text-sm [&_h3]:font-bold [&_h3]:text-foreground
+                [&_h4]:mt-2 [&_h4]:mb-1 [&_h4]:font-bold [&_h4]:text-sm [&_h4]:text-foreground
+                [&_p]:my-1.5
+                [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1
+                [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1
+                [&_li]:text-[13px] [&_li]:marker:text-primary
+                [&_blockquote]:my-2 [&_blockquote]:border-l-4 [&_blockquote]:border-primary [&_blockquote]:bg-primary/5 [&_blockquote]:px-3 [&_blockquote]:py-1.5 [&_blockquote]:text-foreground
+                [&_table]:my-2 [&_table]:w-full [&_table]:border-collapse [&_table]:text-[12px]
+                [&_th]:border [&_th]:border-ink/15 [&_th]:bg-primary/10 [&_th]:px-2 [&_th]:py-1 [&_th]:text-left [&_th]:font-bold [&_th]:text-primary
+                [&_td]:border [&_td]:border-ink/15 [&_td]:px-2 [&_td]:py-1
+                [&_img]:my-2 [&_img]:rounded-lg [&_img]:border [&_img]:border-ink/10"
               dangerouslySetInnerHTML={{ __html: b }}
             />
           ))}
