@@ -47,6 +47,7 @@ function DailyNewsPage() {
   const news = useQuery({ queryKey: ["news", pages], queryFn: () => fetchNews(pages) });
 
   const [pickedDate, setPickedDate] = useState<Date | undefined>(undefined);
+  const [openId, setOpenId] = useState<number | null>(null);
 
   const all = news.data ?? [];
   const list = useMemo(() => {
@@ -144,36 +145,74 @@ function DailyNewsPage() {
           </div>
         ) : (
           <div className="space-y-2.5">
-            {list.map((n) => (
-              <article
-                key={n.id}
-                className="group flex gap-3 rounded-2xl border-2 border-ink/10 bg-card p-3 transition-all hover:-translate-y-0.5 hover:border-foreground hover:shadow-soft"
-              >
-                {n.image ? (
-                  <img
-                    src={n.image}
-                    alt=""
-                    loading="lazy"
-                    className="h-20 w-20 shrink-0 rounded-xl border border-ink/10 object-cover sm:h-24 sm:w-24"
-                  />
-                ) : (
-                  <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl border border-ink/10 bg-muted sm:h-24 sm:w-24">
-                    <Newspaper className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                )}
-                <div className="min-w-0 flex-1">
-                  <h3 className="line-clamp-2 font-display text-xs font-bold leading-snug text-foreground sm:text-sm">
-                    {n.title}
-                  </h3>
-                  <p className="mt-1 line-clamp-2 text-[11px] text-muted-foreground">
-                    {n.summary}
-                  </p>
-                  <div className="mt-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                    {timeAgo(n.createdAt)}
-                  </div>
-                </div>
-              </article>
-            ))}
+            {list.map((n) => {
+              const isOpen = openId === n.id;
+              const dt = new Date((n.createdAt ?? "").replace(" ", "T"));
+              const dateLabel = isNaN(dt.getTime())
+                ? ""
+                : dt.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+              return (
+                <article
+                  key={n.id}
+                  className={cn(
+                    "group rounded-2xl border-2 bg-card transition-all",
+                    isOpen ? "border-foreground shadow-soft" : "border-ink/10 hover:border-foreground hover:shadow-soft",
+                  )}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setOpenId(isOpen ? null : n.id)}
+                    className="flex w-full gap-3 p-3 text-left"
+                    aria-expanded={isOpen}
+                  >
+                    {n.image ? (
+                      <img
+                        src={n.image}
+                        alt=""
+                        loading="lazy"
+                        className="h-20 w-20 shrink-0 rounded-xl border border-ink/10 object-cover sm:h-24 sm:w-24"
+                      />
+                    ) : (
+                      <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl border border-ink/10 bg-muted sm:h-24 sm:w-24">
+                        <Newspaper className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] font-bold uppercase tracking-wider">
+                        <span className="text-primary">{dateLabel}</span>
+                        <span className="text-muted-foreground">· {timeAgo(n.createdAt)}</span>
+                      </div>
+                      <h3 className={cn(
+                        "line-clamp-2 font-display text-xs font-bold leading-snug sm:text-sm",
+                        isOpen ? "text-primary" : "text-foreground",
+                      )}>
+                        {n.title}
+                      </h3>
+                      {!isOpen && (
+                        <p className="mt-1 line-clamp-2 text-[11px] text-muted-foreground">
+                          {n.summary}
+                        </p>
+                      )}
+                    </div>
+                  </button>
+                  {isOpen && (
+                    <div className="border-t-2 border-dashed border-ink/10 px-3 pb-4 pt-3 sm:px-4">
+                      {n.image && (
+                        <img
+                          src={n.image}
+                          alt=""
+                          loading="lazy"
+                          className="mb-3 max-h-72 w-full rounded-xl border border-ink/10 object-cover"
+                        />
+                      )}
+                      <p className="whitespace-pre-line text-[13px] leading-relaxed text-foreground">
+                        {n.summary || "No additional details available."}
+                      </p>
+                    </div>
+                  )}
+                </article>
+              );
+            })}
           </div>
         )}
 
