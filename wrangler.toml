@@ -4,9 +4,9 @@ compatibility_date = "2024-11-01"
 compatibility_flags = ["nodejs_compat"]
 
 [[routes]]
-pattern = "adhyayx.site/*"
+pattern = "adhyayx.site"
 custom_domain = true
 
 [[routes]]
-pattern = "www.adhyayx.site/*"
+pattern = "www.adhyayx.site"
 custom_domain = true
