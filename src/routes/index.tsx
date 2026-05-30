@@ -46,10 +46,11 @@ function HomePage() {
   const totalTests = tests?.length ?? 0;
 
   const { data: pwTestCount = 0, isLoading: pwLoading } = useQuery({
-    queryKey: ["pw", "total-tests"],
-    queryFn: fetchPwTotalTests,
-    staleTime: 1000 * 60 * 60, // cache 1 hour
-  });
+  queryKey: ["pw", "total-tests"],
+  queryFn: fetchPwTotalTests,
+  staleTime: 1000 * 60 * 60,
+  enabled: typeof window !== "undefined",
+});
 
   const combinedTotal = totalTests + pwTestCount;
 
