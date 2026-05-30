@@ -128,3 +128,35 @@ export const fetchPwInstructions = (testId: string) =>
 
 export const fetchPwLeaderboard = (testId: string) =>
   getJson<PwLeaderboard>(`tests/${encodeURIComponent(testId)}/leaderboard`);
+
+export const fetchPwTotalTests = async (): Promise<number> => {
+  // Step 1: fetch batches for all exams × all classes in parallel
+  const batchResults = await Promise.allSettled(
+    PW_EXAMS.flatMap((exam) =>
+      PW_CLASSES.map((klass) => fetchPwBatches(exam, klass))
+    )
+  );
+
+  const allBatches = batchResults
+    .filter(
+      (r): r is PromiseFulfilledResult<PwBatch[]> => r.status === "fulfilled"
+    )
+    .flatMap((r) => r.value);
+
+  // Deduplicate by _id
+  const uniqueBatches = Array.from(
+    new Map(allBatches.map((b) => [b._id, b])).values()
+  );
+
+  // Step 2: fetch test list for each unique batch in parallel
+  const testResults = await Promise.allSettled(
+    uniqueBatches.map((b) => fetchPwTests(b._id, b.testCatId))
+  );
+
+  return testResults
+    .filter(
+      (r): r is PromiseFulfilledResult<PwTestSummary[]> =>
+        r.status === "fulfilled"
+    )
+    .reduce((sum, r) => sum + r.value.length, 0);
+};
