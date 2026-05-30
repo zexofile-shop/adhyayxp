@@ -1,26 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 // Splat proxy for sstudy.site (Physics Wallah) APIs.
-// Examples:
-//   /api/public/pw/batches?exam=IIT-JEE&class=11
-//   /api/public/pw/tests?batchId=...&testCatId=...
-//   /api/public/pw/tests/{id}/questions
-//   /api/public/pw/tests/{id}/solutions
-//   /api/public/pw/tests/{id}/leaderboard
-
-// ── Rate Limit Store ──────────────────────────────────────────────
-// Memory mein store hota hai — worker restart pe reset ho jaata hai
-// Per IP: max 120 requests per minute
 const rateStore = new Map<string, { count: number; resetAt: number }>();
-const MAX_REQUESTS = 120;   // 1 minute mein max kitne requests
-const WINDOW_MS   = 60_000; // 1 minute window
+const MAX_REQUESTS = 120;
+const WINDOW_MS   = 60_000;
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
   const entry = rateStore.get(ip);
 
   if (!entry || now > entry.resetAt) {
-    // Naya window shuru
     rateStore.set(ip, { count: 1, resetAt: now + WINDOW_MS });
     return false;
   }
@@ -28,32 +17,28 @@ function isRateLimited(ip: string): boolean {
   entry.count++;
 
   if (entry.count > MAX_REQUESTS) {
-    return true; // Limit cross ho gayi
+    return true;
   }
 
   return false;
 }
 
-// Old entries clean karo har 5 minutes mein (memory leak rokne ke liye)
 setInterval(() => {
   const now = Date.now();
   for (const [ip, entry] of rateStore.entries()) {
     if (now > entry.resetAt) rateStore.delete(ip);
   }
 }, 5 * 60_000);
-// ─────────────────────────────────────────────────────────────────
 
 export const Route = createFileRoute("/api/public/pw/$")({
   server: {
     handlers: {
       GET: async ({ params, request }) => {
-        // ── Step 1: IP nikalo ──
         const ip =
-          request.headers.get("cf-connecting-ip") ??   // Cloudflare real IP
+          request.headers.get("cf-connecting-ip") ??
           request.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
           "unknown";
 
-        // ── Step 2: Rate limit check ──
         if (isRateLimited(ip)) {
           return new Response(
             JSON.stringify({ error: "Too many requests. Please slow down." }),
@@ -67,18 +52,20 @@ export const Route = createFileRoute("/api/public/pw/$")({
           );
         }
 
-        // ── Step 3: Origin check — sirf apni site se requests allow karo ──
         const origin  = request.headers.get("origin")  ?? "";
         const referer = request.headers.get("referer") ?? "";
+
+        // ✅ www.adhyayx.site bhi add kiya gaya
         const allowedOrigins = [
-  "https://adhyayxp.zexofile.workers.dev",
-  "https://adhyayxp.pages.dev",
-  "https://adhyayx.site",  // ← yahan add karo
-];
+          "https://adhyayxp.zexofile.workers.dev",
+          "https://adhyayxp.pages.dev",
+          "https://adhyayx.site",
+          "https://www.adhyayx.site",  // ← NEW
+        ];
 
         const isAllowed =
           allowedOrigins.some((o) => origin.startsWith(o) || referer.startsWith(o)) ||
-          origin === ""   // Server-side render ke liye (SSR)
+          origin === ""
         ;
 
         if (!isAllowed) {
@@ -88,7 +75,6 @@ export const Route = createFileRoute("/api/public/pw/$")({
           );
         }
 
-        // ── Step 4: Proxy to sstudy.site ──
         const splat = String((params as { _splat?: string })._splat ?? "");
         if (!splat) return new Response("Bad path", { status: 400 });
 
