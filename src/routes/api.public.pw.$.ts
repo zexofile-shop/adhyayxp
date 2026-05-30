@@ -71,11 +71,10 @@ export const Route = createFileRoute("/api/public/pw/$")({
         const origin  = request.headers.get("origin")  ?? "";
         const referer = request.headers.get("referer") ?? "";
         const allowedOrigins = [
-          "https://adhyayxp.zexofile.workers.dev",
-          "https://adhyayxp.pages.dev",
-          // Custom domain add karna ho toh yahan daalo:
-          // "https://adhyayxp.com",
-        ];
+  "https://adhyayxp.zexofile.workers.dev",
+  "https://adhyayxp.pages.dev",
+  "https://adhyayx.site",  // ← yahan add karo
+];
 
         const isAllowed =
           allowedOrigins.some((o) => origin.startsWith(o) || referer.startsWith(o)) ||
