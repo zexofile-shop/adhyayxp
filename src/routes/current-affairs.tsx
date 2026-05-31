@@ -140,7 +140,7 @@ function CurrentAffairsPage() {
                 disabled={(d) => d > new Date() || d < MIN_DATE}
                 fromDate={MIN_DATE}
                 toDate={new Date()}
-                captionLayout="dropdown-buttons"
+                captionLayout="dropdown"
                 fromYear={2020}
                 toYear={new Date().getFullYear()}
                 initialFocus
