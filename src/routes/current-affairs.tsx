@@ -138,11 +138,9 @@ function CurrentAffairsPage() {
                 }}
                 defaultMonth={pickedDate ?? new Date()}
                 disabled={(d) => d > new Date() || d < MIN_DATE}
-                fromDate={MIN_DATE}
-                toDate={new Date()}
+                startMonth={MIN_DATE}
+                endMonth={new Date()}
                 captionLayout="dropdown"
-                fromYear={2020}
-                toYear={new Date().getFullYear()}
                 initialFocus
                 className={cn("p-3 pointer-events-auto")}
               />
