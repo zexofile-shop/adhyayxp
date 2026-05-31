@@ -10,7 +10,9 @@ export const Route = createFileRoute("/api/public/pw/$")({
       GET: async ({ params, request }) => {
         const limited = enforceRateLimit(request, {
           bucket: "pw",
-          max: 120,
+          // Home page fans out ~260+ batch calls to compute total mock count,
+          // so the per-IP allowance has to comfortably exceed that burst.
+          max: 600,
           windowMs: 60_000,
         });
         if (limited) return limited;
