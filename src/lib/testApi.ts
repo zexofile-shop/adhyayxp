@@ -1,13 +1,8 @@
-const BASE = "https://gaqyuylvawgoxuaevhsi.supabase.co/rest/v1";
-const APIKEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdhcXl1eWx2YXdnb3h1YWV2aHNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI0MDExNTQsImV4cCI6MjA2Nzk3NzE1NH0.tRJXi5vTSopCza_61sYu2ccOrk8LR7UvJ07JPP07OEI";
+// All database reads are proxied through our own /api/public/db/* namespace
+// so the Supabase URL + anon key never appear in the browser network tab.
+const BASE = "/api/public/db";
 
-const headers = {
-  apikey: APIKEY,
-  Authorization: `Bearer ${APIKEY}`,
-  "accept-profile": "public",
-  accept: "*/*",
-};
+const headers = { accept: "*/*" };
 
 export interface Test {
   id: string;

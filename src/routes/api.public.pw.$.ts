@@ -1,93 +1,51 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { enforceRateLimit } from "@/lib/rate-limit.server";
 
-// Splat proxy for sstudy.site (Physics Wallah) APIs.
-const rateStore = new Map<string, { count: number; resetAt: number }>();
-const MAX_REQUESTS = 120;
-const WINDOW_MS   = 60_000;
-
-let lastPruneAt = 0;
-const PRUNE_INTERVAL_MS = 5 * 60_000;
-
-function pruneExpired(now: number) {
-  for (const [ip, entry] of rateStore.entries()) {
-    if (now > entry.resetAt) rateStore.delete(ip);
-  }
-}
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-
-  // Opportunistic cleanup — Cloudflare Workers disallow setInterval in global scope.
-  if (now - lastPruneAt > PRUNE_INTERVAL_MS) {
-    lastPruneAt = now;
-    pruneExpired(now);
-  }
-
-  const entry = rateStore.get(ip);
-
-  if (!entry || now > entry.resetAt) {
-    rateStore.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-    return false;
-  }
-
-  entry.count++;
-
-  if (entry.count > MAX_REQUESTS) {
-    return true;
-  }
-
-  return false;
-}
-
+// Splat proxy for sstudy.site (Physics Wallah) APIs, surfaced under
+// our own /api/public/pw/* namespace so the upstream origin never reaches
+// the browser. Heavy rate-limiting + origin allowlist guard the proxy.
 export const Route = createFileRoute("/api/public/pw/$")({
   server: {
     handlers: {
       GET: async ({ params, request }) => {
-        const ip =
-          request.headers.get("cf-connecting-ip") ??
-          request.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
-          "unknown";
+        const limited = enforceRateLimit(request, {
+          bucket: "pw",
+          // Home page fans out ~260+ batch calls to compute total mock count,
+          // so the per-IP allowance has to comfortably exceed that burst.
+          max: 600,
+          windowMs: 60_000,
+        });
+        if (limited) return limited;
 
-        if (isRateLimited(ip)) {
-          return new Response(
-            JSON.stringify({ error: "Too many requests. Please slow down." }),
-            {
-              status: 429,
-              headers: {
-                "content-type": "application/json",
-                "retry-after": "60",
-              },
-            }
-          );
-        }
-
-        const origin  = request.headers.get("origin")  ?? "";
+        const origin = request.headers.get("origin") ?? "";
         const referer = request.headers.get("referer") ?? "";
 
-        // ✅ www.adhyayx.site bhi add kiya gaya
         const allowedOrigins = [
           "https://adhyayxp.zexofile.workers.dev",
           "https://adhyayxp.pages.dev",
           "https://adhyayx.site",
-          "https://www.adhyayx.site",  // ← NEW
+          "https://www.adhyayx.site",
+          "https://adhyayxp.lovable.app",
         ];
 
         const isAllowed =
-          allowedOrigins.some((o) => origin.startsWith(o) || referer.startsWith(o)) ||
-          origin === ""
-        ;
+          allowedOrigins.some(
+            (o) => origin.startsWith(o) || referer.startsWith(o),
+          ) ||
+          origin === "" ||
+          origin.endsWith(".lovable.app");
 
         if (!isAllowed) {
-          return new Response(
-            JSON.stringify({ error: "Forbidden" }),
-            { status: 403, headers: { "content-type": "application/json" } }
-          );
+          return new Response(JSON.stringify({ error: "Forbidden" }), {
+            status: 403,
+            headers: { "content-type": "application/json" },
+          });
         }
 
         const splat = String((params as { _splat?: string })._splat ?? "");
         if (!splat) return new Response("Bad path", { status: 400 });
 
-        const search   = new URL(request.url).search;
+        const search = new URL(request.url).search;
         const upstream = `https://v1.sstudy.site/api/${splat}${search}`;
 
         const res = await fetch(upstream, {

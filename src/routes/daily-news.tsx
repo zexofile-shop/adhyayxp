@@ -1,21 +1,22 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
-  ArrowRight,
   X,
   Newspaper,
+  Loader2,
 } from "lucide-react";
-import { fetchNews, newsDate } from "@/lib/affairsApi";
+import { fetchNewsRange, newsDate } from "@/lib/affairsApi";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
 export const Route = createFileRoute("/daily-news")({
   head: () => ({
@@ -23,7 +24,8 @@ export const Route = createFileRoute("/daily-news")({
       { title: "Daily News — AdhyayX" },
       {
         name: "description",
-        content: "Latest daily news stories, refreshed every day for competitive exam aspirants.",
+        content:
+          "Latest daily news stories, refreshed every day for competitive exam aspirants.",
       },
       { property: "og:title", content: "Daily News — AdhyayX" },
       { property: "og:description", content: "Pick a date and read that day's news stories." },
@@ -43,8 +45,13 @@ function timeAgo(iso: string): string {
 }
 
 function DailyNewsPage() {
+  const router = useRouter();
   const [pages, setPages] = useState(2);
-  const news = useQuery({ queryKey: ["news", pages], queryFn: () => fetchNews(pages) });
+  const news = useQuery({
+    queryKey: ["news", pages],
+    queryFn: () => fetchNewsRange(1, pages),
+    placeholderData: (prev) => prev,
+  });
 
   const [pickedDate, setPickedDate] = useState<Date | undefined>(undefined);
   const [openId, setOpenId] = useState<number | null>(null);
@@ -56,6 +63,16 @@ function DailyNewsPage() {
     return all.filter((n) => newsDate(n.createdAt) === key);
   }, [all, pickedDate]);
 
+  const loadMore = useCallback(() => {
+    if (!news.isFetching && !pickedDate) {
+      setPages((p) => p + 2);
+    }
+  }, [news.isFetching, pickedDate]);
+
+  const sentinelRef = useInfiniteScroll(loadMore, {
+    enabled: !pickedDate && !news.isLoading && pages < 20,
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -65,12 +82,13 @@ function DailyNewsPage() {
         <div className="absolute inset-0 grid-bg opacity-15" />
         <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-primary/40 blur-3xl" />
         <div className="relative mx-auto max-w-5xl px-5 py-6 sm:px-6 sm:py-10">
-          <Link
-            to="/"
+          <button
+            type="button"
+            onClick={() => router.history.back()}
             className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-background/70 hover:text-background"
           >
-            <ChevronLeft className="h-3.5 w-3.5" /> Home
-          </Link>
+            <ChevronLeft className="h-3.5 w-3.5" /> Back
+          </button>
           <h1 className="mt-3 font-display text-xl font-bold leading-tight sm:text-3xl">
             Daily News
           </h1>
@@ -150,13 +168,19 @@ function DailyNewsPage() {
               const dt = new Date((n.createdAt ?? "").replace(" ", "T"));
               const dateLabel = isNaN(dt.getTime())
                 ? ""
-                : dt.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+                : dt.toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  });
               return (
                 <article
                   key={n.id}
                   className={cn(
                     "group rounded-2xl border-2 bg-card transition-all",
-                    isOpen ? "border-foreground shadow-soft" : "border-ink/10 hover:border-foreground hover:shadow-soft",
+                    isOpen
+                      ? "border-foreground shadow-soft"
+                      : "border-ink/10 hover:border-foreground hover:shadow-soft",
                   )}
                 >
                   <button
@@ -180,12 +204,16 @@ function DailyNewsPage() {
                     <div className="min-w-0 flex-1">
                       <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] font-bold uppercase tracking-wider">
                         <span className="text-primary">{dateLabel}</span>
-                        <span className="text-muted-foreground">· {timeAgo(n.createdAt)}</span>
+                        <span className="text-muted-foreground">
+                          · {timeAgo(n.createdAt)}
+                        </span>
                       </div>
-                      <h3 className={cn(
-                        "line-clamp-2 font-display text-xs font-bold leading-snug sm:text-sm",
-                        isOpen ? "text-primary" : "text-foreground",
-                      )}>
+                      <h3
+                        className={cn(
+                          "line-clamp-2 font-display text-xs font-bold leading-snug sm:text-sm",
+                          isOpen ? "text-primary" : "text-foreground",
+                        )}
+                      >
                         {n.title}
                       </h3>
                       {!isOpen && (
@@ -216,14 +244,21 @@ function DailyNewsPage() {
           </div>
         )}
 
-        {!pickedDate && !news.isLoading && list.length > 0 && (
-          <div className="mt-6 flex justify-center">
-            <button
-              onClick={() => setPages((p) => p + 2)}
-              className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-5 py-2.5 text-xs font-bold text-background shadow-soft transition-transform hover:scale-[1.03]"
-            >
-              Load older news <ArrowRight className="h-3.5 w-3.5" />
-            </button>
+        {/* Infinite scroll sentinel */}
+        {!pickedDate && !news.isLoading && (
+          <div
+            ref={sentinelRef}
+            className="mt-6 flex justify-center py-4 text-xs text-muted-foreground"
+          >
+            {news.isFetching && pages > 2 ? (
+              <span className="inline-flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" /> Loading more…
+              </span>
+            ) : pages >= 20 ? (
+              <span>You're all caught up.</span>
+            ) : (
+              <span className="opacity-0">.</span>
+            )}
           </div>
         )}
       </section>
