@@ -5,8 +5,24 @@ const rateStore = new Map<string, { count: number; resetAt: number }>();
 const MAX_REQUESTS = 120;
 const WINDOW_MS   = 60_000;
 
+let lastPruneAt = 0;
+const PRUNE_INTERVAL_MS = 5 * 60_000;
+
+function pruneExpired(now: number) {
+  for (const [ip, entry] of rateStore.entries()) {
+    if (now > entry.resetAt) rateStore.delete(ip);
+  }
+}
+
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
+
+  // Opportunistic cleanup — Cloudflare Workers disallow setInterval in global scope.
+  if (now - lastPruneAt > PRUNE_INTERVAL_MS) {
+    lastPruneAt = now;
+    pruneExpired(now);
+  }
+
   const entry = rateStore.get(ip);
 
   if (!entry || now > entry.resetAt) {
@@ -22,13 +38,6 @@ function isRateLimited(ip: string): boolean {
 
   return false;
 }
-
-setInterval(() => {
-  const now = Date.now();
-  for (const [ip, entry] of rateStore.entries()) {
-    if (now > entry.resetAt) rateStore.delete(ip);
-  }
-}, 5 * 60_000);
 
 export const Route = createFileRoute("/api/public/pw/$")({
   server: {
