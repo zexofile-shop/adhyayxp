@@ -53,6 +53,13 @@ function HomePage() {
     enabled: typeof window !== "undefined",
   });
 
+  const { data: pwBatchCount = 0 } = useQuery({
+  queryKey: ["pw", "total-batches"],
+  queryFn: fetchPwTotalBatches,
+  staleTime: 1000 * 60 * 60 * 6,
+  enabled: typeof window !== "undefined",
+});
+
   // Show core total instantly; append PW count once it resolves.
   const combinedDisplay = isLoading
     ? "…"
@@ -97,10 +104,10 @@ function HomePage() {
               <div className="mt-7 flex max-w-md flex-wrap gap-x-7 gap-y-3 text-left">
                 {[
                   { k: combinedDisplay, v: "Active tests" },
-                  {
-                    k: isLoading ? "…" : String(categories.length || 0),
-                    v: categories.length === 1 ? "Category" : "Categories",
-                  },
+                {
+  k: isLoading ? "…" : String((categories.length || 0) + pwBatchCount),
+  v: "Categories",
+},
                   { k: "Free", v: "No signup needed" },
                 ].map((s) => (
                   <div key={s.v}>
