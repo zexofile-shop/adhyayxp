@@ -104,7 +104,7 @@ export const PW_EXAMS = [
 
 export const PW_CLASSES = [
   "6", "7", "8", "9", "10", "11", "12",
-  "12+ / Dropper", "Graduation", "Under Graduation"
+  "12+", "Graduation", "Under Graduation"
 ] as const;
 
 export const fetchPwBatches = (exam: string, klass: string) =>
