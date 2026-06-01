@@ -10,6 +10,7 @@ import {
 import { useEffect } from "react";
 
 import appCss from "../styles.css?url";
+import { NiteshAiChat } from "@/components/site/NiteshAiChat";
 import { PwFloatingIcon } from "@/components/site/PwFloatingIcon";
 import { initDevToolsBlock } from "@/lib/devtools-block";
 
@@ -131,6 +132,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
+      <NiteshAiChat />
       <PwFloatingIcon />
     </QueryClientProvider>
   );
