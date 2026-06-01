@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { fetchTests } from "@/lib/testApi";
 import { buildCategories } from "@/lib/categories";
-import { fetchPwTotalTests } from "@/lib/pwApi";
+import { fetchPwTotalTests, fetchPwTotalBatches } from "@/lib/pwApi";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import {
