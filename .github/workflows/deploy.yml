@@ -25,7 +25,15 @@ jobs:
 
       - name: Deploy
         run: |
-          rm -rf .wrangler
-          wrangler deploy --config dist/server/wrangler.json
+          if [ -f ".output/server/index.js" ]; then
+            wrangler deploy .output/server/index.js --name adhyayxp --compatibility-date 2024-11-01 --compatibility-flag nodejs_compat --assets .output/public
+          elif [ -f "dist/server/index.js" ]; then
+            wrangler deploy dist/server/index.js --name adhyayxp --compatibility-date 2024-11-01 --compatibility-flag nodejs_compat --assets dist/client
+          elif [ -f "dist/server/server.js" ]; then
+            wrangler deploy dist/server/server.js --name adhyayxp --compatibility-date 2024-11-01 --compatibility-flag nodejs_compat --assets dist/client
+          else
+            echo "Build output:" && find . -not -path "*/node_modules/*" -name "*.js" -path "*server*"
+            wrangler deploy
+          fi
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}

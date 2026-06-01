@@ -64,15 +64,7 @@ export interface PwInstructions {
   maxDuration: number;
   totalMarks: number;
   totalQuestions: number;
-  startTime?: string;
   multiGeneralInstructions?: { en?: string };
-  syllabusData?: { en?: string };
-  syllabus?: { en?: string };
-  generalInstructions?: { en?: string };
-  instructions?: { en?: string };
-  platformInstructions?: { en?: string };
-  testInstructions?: { en?: string };
-  [key: string]: unknown;
 }
 
 export interface PwLeaderboard {
@@ -104,7 +96,7 @@ export const PW_EXAMS = [
 
 export const PW_CLASSES = [
   "6", "7", "8", "9", "10", "11", "12",
-  "12+", "Graduation", "Under Graduation"
+  "12+ / Dropper", "Graduation", "Under Graduation"
 ] as const;
 
 export const fetchPwBatches = (exam: string, klass: string) =>
@@ -128,51 +120,3 @@ export const fetchPwInstructions = (testId: string) =>
 
 export const fetchPwLeaderboard = (testId: string) =>
   getJson<PwLeaderboard>(`tests/${encodeURIComponent(testId)}/leaderboard`);
-
-export const fetchPwTotalBatches = async (): Promise<number> => {
-  const batchResults = await Promise.allSettled(
-    PW_EXAMS.flatMap((exam) =>
-      PW_CLASSES.map((klass) => fetchPwBatches(exam, klass))
-    )
-  );
-
-  const allBatches = batchResults
-    .filter(
-      (r): r is PromiseFulfilledResult<PwBatch[]> => r.status === "fulfilled"
-    )
-    .flatMap((r) => r.value);
-
-  return new Map(allBatches.map((b) => [b._id, b])).size;
-};
-
-export const fetchPwTotalTests = async (): Promise<number> => {
-  // Step 1: fetch batches for all exams × all classes in parallel
-  const batchResults = await Promise.allSettled(
-    PW_EXAMS.flatMap((exam) =>
-      PW_CLASSES.map((klass) => fetchPwBatches(exam, klass))
-    )
-  );
-
-  const allBatches = batchResults
-    .filter(
-      (r): r is PromiseFulfilledResult<PwBatch[]> => r.status === "fulfilled"
-    )
-    .flatMap((r) => r.value);
-
-  // Deduplicate by _id
-  const uniqueBatches = Array.from(
-    new Map(allBatches.map((b) => [b._id, b])).values()
-  );
-
-  // Step 2: fetch test list for each unique batch in parallel
-  const testResults = await Promise.allSettled(
-    uniqueBatches.map((b) => fetchPwTests(b._id, b.testCatId))
-  );
-
-  return testResults
-    .filter(
-      (r): r is PromiseFulfilledResult<PwTestSummary[]> =>
-        r.status === "fulfilled"
-    )
-    .reduce((sum, r) => sum + r.value.length, 0);
-};
