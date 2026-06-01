@@ -25,6 +25,15 @@ export const Route = createFileRoute("/categories")({
 function CategoriesPage() {
   const { data: tests, isLoading } = useQuery({ queryKey: ["tests"], queryFn: fetchTests });
   const categories = buildCategories(tests ?? []);
+  const { data: pwBatchCount, isLoading: pwLoading } = useQuery({
+    queryKey: ["pw", "total-batches"],
+    queryFn: fetchPwTotalBatches,
+    staleTime: 1000 * 60 * 60 * 6,
+    gcTime: 1000 * 60 * 60 * 24,
+    enabled: typeof window !== "undefined",
+  });
+  const pwBatchLabel = pwLoading || pwBatchCount == null ? "20+" : `${pwBatchCount}+`;
+
 
   return (
     <div className="min-h-screen bg-background">
