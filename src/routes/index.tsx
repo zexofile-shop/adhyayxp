@@ -45,14 +45,20 @@ function HomePage() {
   const categories = buildCategories(tests ?? []);
   const totalTests = tests?.length ?? 0;
 
-  const { data: pwTestCount = 0, isLoading: pwLoading } = useQuery({
-  queryKey: ["pw", "total-tests"],
-  queryFn: fetchPwTotalTests,
-  staleTime: 1000 * 60 * 60,
-  enabled: typeof window !== "undefined",
-});
+  const { data: pwTestCount, isLoading: pwLoading } = useQuery({
+    queryKey: ["pw", "total-tests"],
+    queryFn: fetchPwTotalTests,
+    staleTime: 1000 * 60 * 60 * 6,
+    gcTime: 1000 * 60 * 60 * 24,
+    enabled: typeof window !== "undefined",
+  });
 
-  const combinedTotal = totalTests + pwTestCount;
+  // Show core total instantly; append PW count once it resolves.
+  const combinedDisplay = isLoading
+    ? "…"
+    : pwLoading || pwTestCount == null
+      ? `${totalTests}+`
+      : String(totalTests + pwTestCount);
 
   return (
     <div className="min-h-screen bg-background">
@@ -90,10 +96,7 @@ function HomePage() {
 
               <div className="mt-7 flex max-w-md flex-wrap gap-x-7 gap-y-3 text-left">
                 {[
-                  {
-                    k: isLoading || pwLoading ? "…" : String(combinedTotal),
-                    v: combinedTotal === 1 ? "Active test" : "Active tests",
-                  },
+                  { k: combinedDisplay, v: "Active tests" },
                   {
                     k: isLoading ? "…" : String(categories.length || 0),
                     v: categories.length === 1 ? "Category" : "Categories",
@@ -107,6 +110,7 @@ function HomePage() {
                 ))}
               </div>
             </div>
+
 
             {/* Brand panel */}
             <div className="relative" style={{ animation: "fade-up 0.6s 0.1s both" }}>
