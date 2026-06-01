@@ -91,8 +91,9 @@ export function estimatePageForDate(date: Date): number {
 }
 
 /**
- * Find affairs for an exact date by fetching a window of pages around
- * the estimated page. Expanding outward if the date isn't found.
+ * Find affairs for an exact date. Walks pages outward from the estimated
+ * page until either the date is matched, or scanned items have moved past
+ * the target date on both sides.
  */
 export async function fetchAffairsForDate(
   date: Date,
@@ -102,17 +103,18 @@ export async function fetchAffairsForDate(
 
   const center = estimatePageForDate(date);
 
-  // Try expanding windows: ±2, then ±5, then ±10 pages.
-  for (const radius of [2, 5, 10]) {
+  // Try expanding windows: ±3, ±8, ±15, ±25 pages — covers dates back to 2020.
+  for (const radius of [3, 8, 15, 25]) {
     const start = Math.max(1, center - radius);
     const end = center + radius;
     const items = await fetchAffairsRange(start, end);
     const match = items.filter((a) => a.date === key);
     if (match.length > 0) return match;
-    // If items span the date but no exact match, the upstream skipped this day.
     if (items.length > 0) {
-      const minDate = items.reduce((m, x) => (x.date < m ? x.date : m), items[0].date);
-      const maxDate = items.reduce((m, x) => (x.date > m ? x.date : m), items[0].date);
+      const dates = items.map((x) => x.date).filter(Boolean);
+      const minDate = dates.reduce((m, x) => (x < m ? x : m), dates[0]);
+      const maxDate = dates.reduce((m, x) => (x > m ? x : m), dates[0]);
+      // If the target is inside the scanned window, upstream simply skipped this day.
       if (key >= minDate && key <= maxDate) return [];
     }
   }
