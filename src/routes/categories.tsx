@@ -2,11 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { fetchTests } from "@/lib/testApi";
 import { buildCategories } from "@/lib/categories";
+import { fetchPwTotalBatches } from "@/lib/pwApi";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import { AffairsNewsPreview } from "@/components/site/AffairsNewsPreview";
-import { ArrowRight, ChevronLeft } from "lucide-react";
+import { ArrowRight, ChevronLeft, Layers } from "lucide-react";
 import logoVx from "@/assets/logo-vx.jpg";
+
 
 export const Route = createFileRoute("/categories")({
   head: () => ({
