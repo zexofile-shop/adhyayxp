@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import pwLogo from "@/assets/pw-logo.jpg";
 
-const HIDDEN_PREFIXES = ["/pw", "/test/"];
-
 export function PwFloatingIcon() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [showTip, setShowTip] = useState(true);
@@ -16,8 +14,8 @@ export function PwFloatingIcon() {
     return () => clearTimeout(t);
   }, [pathname]);
 
-  if (HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))) return null;
-  if (pathname === "/") return null;
+  // Only show on the All Categories page
+  if (pathname !== "/categories") return null;
 
   return (
     <div className="fixed bottom-20 right-4 z-40 sm:bottom-24 sm:right-6">

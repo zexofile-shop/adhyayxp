@@ -2,11 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { fetchTests } from "@/lib/testApi";
 import { buildCategories } from "@/lib/categories";
+import { fetchPwTotalBatches } from "@/lib/pwApi";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import { AffairsNewsPreview } from "@/components/site/AffairsNewsPreview";
-import { ArrowRight, ChevronLeft } from "lucide-react";
+import { ArrowRight, ChevronLeft, Layers } from "lucide-react";
 import logoVx from "@/assets/logo-vx.jpg";
+
 
 export const Route = createFileRoute("/categories")({
   head: () => ({
@@ -23,6 +25,15 @@ export const Route = createFileRoute("/categories")({
 function CategoriesPage() {
   const { data: tests, isLoading } = useQuery({ queryKey: ["tests"], queryFn: fetchTests });
   const categories = buildCategories(tests ?? []);
+  const { data: pwBatchCount, isLoading: pwLoading } = useQuery({
+    queryKey: ["pw", "total-batches"],
+    queryFn: fetchPwTotalBatches,
+    staleTime: 1000 * 60 * 60 * 6,
+    gcTime: 1000 * 60 * 60 * 24,
+    enabled: typeof window !== "undefined",
+  });
+  const pwBatchLabel = pwLoading || pwBatchCount == null ? "20+" : `${pwBatchCount}+`;
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -111,6 +122,36 @@ function CategoriesPage() {
                 </div>
               </Link>
             ))}
+
+            {/* PW batches summary card — lives inside the same grid */}
+            <Link
+              to="/pw"
+              className="group relative flex flex-col rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card p-3.5 transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-elevated sm:p-5"
+              style={{ animation: `fade-up 0.45s ${categories.length * 30}ms both` }}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-soft ring-2 ring-ink/10 sm:h-12 sm:w-12">
+                  <Layers className="h-5 w-5 sm:h-6 sm:w-6" />
+                </div>
+                <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground tabular-nums">
+                  {pwBatchLabel}
+                </span>
+              </div>
+              <div className="mt-3 font-display text-sm font-bold leading-tight text-foreground sm:text-lg">
+                Physics Wallah · Batches
+              </div>
+              <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-muted-foreground sm:text-sm">
+                {pwBatchLabel} PW batches available with thousands of mock tests.
+              </p>
+              <div className="mt-3 flex items-center justify-between border-t-2 border-dashed border-primary/20 pt-2.5 sm:mt-4 sm:pt-3">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-primary sm:text-[11px]">
+                  Open PW
+                </span>
+                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border-2 border-primary/30 text-primary transition-all group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary sm:h-9 sm:w-9">
+                  <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </span>
+              </div>
+            </Link>
           </div>
         )}
       </section>
