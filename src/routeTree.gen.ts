@@ -13,14 +13,17 @@ import { Route as PwRouteImport } from './routes/pw'
 import { Route as DailyNewsRouteImport } from './routes/daily-news'
 import { Route as CurrentAffairsRouteImport } from './routes/current-affairs'
 import { Route as CategoriesRouteImport } from './routes/categories'
+import { Route as BooksRouteImport } from './routes/books'
+import { Route as AiRouteImport } from './routes/ai'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TestTestIdRouteImport } from './routes/test.$testId'
 import { Route as CategoryStreamRouteImport } from './routes/category.$stream'
+import { Route as BooksBookIdRouteImport } from './routes/books.$bookId'
+import { Route as ApiAiRouteImport } from './routes/api.ai'
 import { Route as PwTestTestIdRouteImport } from './routes/pw.test.$testId'
 import { Route as ApiPublicNewsRouteImport } from './routes/api.public.news'
 import { Route as ApiPublicAffairsRouteImport } from './routes/api.public.affairs'
 import { Route as ApiPublicPwSplatRouteImport } from './routes/api.public.pw.$'
-import { Route as ApiPublicDbSplatRouteImport } from './routes/api.public.db.$'
 import { Route as ApiPublicAffairIdRouteImport } from './routes/api.public.affair.$id'
 
 const PwRoute = PwRouteImport.update({
@@ -43,6 +46,16 @@ const CategoriesRoute = CategoriesRouteImport.update({
   path: '/categories',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BooksRoute = BooksRouteImport.update({
+  id: '/books',
+  path: '/books',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiRoute = AiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -56,6 +69,16 @@ const TestTestIdRoute = TestTestIdRouteImport.update({
 const CategoryStreamRoute = CategoryStreamRouteImport.update({
   id: '/category/$stream',
   path: '/category/$stream',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BooksBookIdRoute = BooksBookIdRouteImport.update({
+  id: '/$bookId',
+  path: '/$bookId',
+  getParentRoute: () => BooksRoute,
+} as any)
+const ApiAiRoute = ApiAiRouteImport.update({
+  id: '/api/ai',
+  path: '/api/ai',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PwTestTestIdRoute = PwTestTestIdRouteImport.update({
@@ -78,11 +101,6 @@ const ApiPublicPwSplatRoute = ApiPublicPwSplatRouteImport.update({
   path: '/api/public/pw/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicDbSplatRoute = ApiPublicDbSplatRouteImport.update({
-  id: '/api/public/db/$',
-  path: '/api/public/db/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicAffairIdRoute = ApiPublicAffairIdRouteImport.update({
   id: '/api/public/affair/$id',
   path: '/api/public/affair/$id',
@@ -91,110 +109,130 @@ const ApiPublicAffairIdRoute = ApiPublicAffairIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai': typeof AiRoute
+  '/books': typeof BooksRouteWithChildren
   '/categories': typeof CategoriesRoute
   '/current-affairs': typeof CurrentAffairsRoute
   '/daily-news': typeof DailyNewsRoute
   '/pw': typeof PwRouteWithChildren
+  '/api/ai': typeof ApiAiRoute
+  '/books/$bookId': typeof BooksBookIdRoute
   '/category/$stream': typeof CategoryStreamRoute
   '/test/$testId': typeof TestTestIdRoute
   '/api/public/affairs': typeof ApiPublicAffairsRoute
   '/api/public/news': typeof ApiPublicNewsRoute
   '/pw/test/$testId': typeof PwTestTestIdRoute
   '/api/public/affair/$id': typeof ApiPublicAffairIdRoute
-  '/api/public/db/$': typeof ApiPublicDbSplatRoute
   '/api/public/pw/$': typeof ApiPublicPwSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai': typeof AiRoute
+  '/books': typeof BooksRouteWithChildren
   '/categories': typeof CategoriesRoute
   '/current-affairs': typeof CurrentAffairsRoute
   '/daily-news': typeof DailyNewsRoute
   '/pw': typeof PwRouteWithChildren
+  '/api/ai': typeof ApiAiRoute
+  '/books/$bookId': typeof BooksBookIdRoute
   '/category/$stream': typeof CategoryStreamRoute
   '/test/$testId': typeof TestTestIdRoute
   '/api/public/affairs': typeof ApiPublicAffairsRoute
   '/api/public/news': typeof ApiPublicNewsRoute
   '/pw/test/$testId': typeof PwTestTestIdRoute
   '/api/public/affair/$id': typeof ApiPublicAffairIdRoute
-  '/api/public/db/$': typeof ApiPublicDbSplatRoute
   '/api/public/pw/$': typeof ApiPublicPwSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai': typeof AiRoute
+  '/books': typeof BooksRouteWithChildren
   '/categories': typeof CategoriesRoute
   '/current-affairs': typeof CurrentAffairsRoute
   '/daily-news': typeof DailyNewsRoute
   '/pw': typeof PwRouteWithChildren
+  '/api/ai': typeof ApiAiRoute
+  '/books/$bookId': typeof BooksBookIdRoute
   '/category/$stream': typeof CategoryStreamRoute
   '/test/$testId': typeof TestTestIdRoute
   '/api/public/affairs': typeof ApiPublicAffairsRoute
   '/api/public/news': typeof ApiPublicNewsRoute
   '/pw/test/$testId': typeof PwTestTestIdRoute
   '/api/public/affair/$id': typeof ApiPublicAffairIdRoute
-  '/api/public/db/$': typeof ApiPublicDbSplatRoute
   '/api/public/pw/$': typeof ApiPublicPwSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/ai'
+    | '/books'
     | '/categories'
     | '/current-affairs'
     | '/daily-news'
     | '/pw'
+    | '/api/ai'
+    | '/books/$bookId'
     | '/category/$stream'
     | '/test/$testId'
     | '/api/public/affairs'
     | '/api/public/news'
     | '/pw/test/$testId'
     | '/api/public/affair/$id'
-    | '/api/public/db/$'
     | '/api/public/pw/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/ai'
+    | '/books'
     | '/categories'
     | '/current-affairs'
     | '/daily-news'
     | '/pw'
+    | '/api/ai'
+    | '/books/$bookId'
     | '/category/$stream'
     | '/test/$testId'
     | '/api/public/affairs'
     | '/api/public/news'
     | '/pw/test/$testId'
     | '/api/public/affair/$id'
-    | '/api/public/db/$'
     | '/api/public/pw/$'
   id:
     | '__root__'
     | '/'
+    | '/ai'
+    | '/books'
     | '/categories'
     | '/current-affairs'
     | '/daily-news'
     | '/pw'
+    | '/api/ai'
+    | '/books/$bookId'
     | '/category/$stream'
     | '/test/$testId'
     | '/api/public/affairs'
     | '/api/public/news'
     | '/pw/test/$testId'
     | '/api/public/affair/$id'
-    | '/api/public/db/$'
     | '/api/public/pw/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiRoute: typeof AiRoute
+  BooksRoute: typeof BooksRouteWithChildren
   CategoriesRoute: typeof CategoriesRoute
   CurrentAffairsRoute: typeof CurrentAffairsRoute
   DailyNewsRoute: typeof DailyNewsRoute
   PwRoute: typeof PwRouteWithChildren
+  ApiAiRoute: typeof ApiAiRoute
   CategoryStreamRoute: typeof CategoryStreamRoute
   TestTestIdRoute: typeof TestTestIdRoute
   ApiPublicAffairsRoute: typeof ApiPublicAffairsRoute
   ApiPublicNewsRoute: typeof ApiPublicNewsRoute
   ApiPublicAffairIdRoute: typeof ApiPublicAffairIdRoute
-  ApiPublicDbSplatRoute: typeof ApiPublicDbSplatRoute
   ApiPublicPwSplatRoute: typeof ApiPublicPwSplatRoute
 }
 
@@ -228,6 +266,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/books': {
+      id: '/books'
+      path: '/books'
+      fullPath: '/books'
+      preLoaderRoute: typeof BooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai': {
+      id: '/ai'
+      path: '/ai'
+      fullPath: '/ai'
+      preLoaderRoute: typeof AiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -247,6 +299,20 @@ declare module '@tanstack/react-router' {
       path: '/category/$stream'
       fullPath: '/category/$stream'
       preLoaderRoute: typeof CategoryStreamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/books/$bookId': {
+      id: '/books/$bookId'
+      path: '/$bookId'
+      fullPath: '/books/$bookId'
+      preLoaderRoute: typeof BooksBookIdRouteImport
+      parentRoute: typeof BooksRoute
+    }
+    '/api/ai': {
+      id: '/api/ai'
+      path: '/api/ai'
+      fullPath: '/api/ai'
+      preLoaderRoute: typeof ApiAiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pw/test/$testId': {
@@ -277,13 +343,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPwSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/db/$': {
-      id: '/api/public/db/$'
-      path: '/api/public/db/$'
-      fullPath: '/api/public/db/$'
-      preLoaderRoute: typeof ApiPublicDbSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/affair/$id': {
       id: '/api/public/affair/$id'
       path: '/api/public/affair/$id'
@@ -293,6 +352,16 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface BooksRouteChildren {
+  BooksBookIdRoute: typeof BooksBookIdRoute
+}
+
+const BooksRouteChildren: BooksRouteChildren = {
+  BooksBookIdRoute: BooksBookIdRoute,
+}
+
+const BooksRouteWithChildren = BooksRoute._addFileChildren(BooksRouteChildren)
 
 interface PwRouteChildren {
   PwTestTestIdRoute: typeof PwTestTestIdRoute
@@ -306,16 +375,18 @@ const PwRouteWithChildren = PwRoute._addFileChildren(PwRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiRoute: AiRoute,
+  BooksRoute: BooksRouteWithChildren,
   CategoriesRoute: CategoriesRoute,
   CurrentAffairsRoute: CurrentAffairsRoute,
   DailyNewsRoute: DailyNewsRoute,
   PwRoute: PwRouteWithChildren,
+  ApiAiRoute: ApiAiRoute,
   CategoryStreamRoute: CategoryStreamRoute,
   TestTestIdRoute: TestTestIdRoute,
   ApiPublicAffairsRoute: ApiPublicAffairsRoute,
   ApiPublicNewsRoute: ApiPublicNewsRoute,
   ApiPublicAffairIdRoute: ApiPublicAffairIdRoute,
-  ApiPublicDbSplatRoute: ApiPublicDbSplatRoute,
   ApiPublicPwSplatRoute: ApiPublicPwSplatRoute,
 }
 export const routeTree = rootRouteImport

@@ -81,11 +81,6 @@ export interface PwLeaderboard {
   rankScores: [number, number][];
 }
 
-export interface PwFilters {
-  exams: string[];
-  classes: string[];
-}
-
 async function getJson<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}/${path}`);
   if (!res.ok) throw new Error(`PW fetch failed: ${path}`);
@@ -94,18 +89,19 @@ async function getJson<T>(path: string): Promise<T> {
 }
 
 export const PW_EXAMS = [
-  "IIT-JEE", "NEET", "BOARD_EXAM", "AE/JE", "Banking",
-  "BPSC", "CA", "COMMERCE", "CSIR NET", "CUET UG",
-  "FOUNDATION", "GATE", "IIT JAM", "LAW", "MBA",
-  "NDA", "NSAT", "OLYMPIAD", "PRE_FOUNDATION", "Railway",
-  "SCHOOL_PREPARATION", "SSC", "UGC NET", "UP Exams",
-  "UPPSC", "UPSC"
+  "IIT-JEE",
+  "NEET",
+  "UPSC",
+  "SSC",
+  "GATE",
+  "CUET",
+  "Defence",
+  "Banking",
+  "State PSC",
+  "Railways",
 ] as const;
 
-export const PW_CLASSES = [
-  "6", "7", "8", "9", "10", "11", "12",
-  "12+ / Dropper", "Graduation", "Under Graduation"
-] as const;
+export const PW_CLASSES = ["9", "10", "11", "12", "Dropper"] as const;
 
 export const fetchPwBatches = (exam: string, klass: string) =>
   getJson<PwBatch[]>(

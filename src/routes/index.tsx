@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { fetchTests } from "@/lib/testApi";
 import { buildCategories } from "@/lib/categories";
-import { fetchPwTotalTests, fetchPwTotalBatches } from "@/lib/pwApi";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import {
@@ -45,28 +44,6 @@ function HomePage() {
   const categories = buildCategories(tests ?? []);
   const totalTests = tests?.length ?? 0;
 
-  const { data: pwTestCount, isLoading: pwLoading } = useQuery({
-    queryKey: ["pw", "total-tests"],
-    queryFn: fetchPwTotalTests,
-    staleTime: 1000 * 60 * 60 * 6,
-    gcTime: 1000 * 60 * 60 * 24,
-    enabled: typeof window !== "undefined",
-  });
-
-  const { data: pwBatchCount = 0 } = useQuery({
-  queryKey: ["pw", "total-batches"],
-  queryFn: fetchPwTotalBatches,
-  staleTime: 1000 * 60 * 60 * 6,
-  enabled: typeof window !== "undefined",
-});
-
-  // Show core total instantly; append PW count once it resolves.
-  const combinedDisplay = isLoading
-    ? "…"
-    : pwLoading || pwTestCount == null
-      ? `${totalTests}+`
-      : String(totalTests + pwTestCount);
-
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -77,11 +54,12 @@ function HomePage() {
         <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-12 sm:px-6 sm:pt-20 lg:pb-24">
           <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
             <div style={{ animation: "fade-up 0.5s both" }}>
-              <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink/10 bg-card px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-foreground shadow-soft">
+              <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink/10 bg-card px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-foreground shadow-soft">
                 <GraduationCap className="h-3 w-3 text-primary" />
-                AdhyayX <span className="text-muted-foreground normal-case tracking-normal">:</span> <span className="text-primary">Har Adhyay, Ek Nayi Jeet</span>
+                AdhyayX
               </span>
-              <h1 className="mt-4 font-display text-[26px] font-bold leading-[1.18] tracking-tight text-foreground sm:text-[36px] lg:text-[44px]">
+              {/* Headline — user-specified format, compact */}
+              <h1 className="mt-4 font-display text-[22px] font-bold leading-[1.2] tracking-tight text-foreground sm:text-[28px] lg:text-[32px]">
                 Crack <span className="text-primary">JEE, NEET</span>, boards &amp;<br />
                 competitive exams with<br />
                 exam-grade mocks.
@@ -103,11 +81,8 @@ function HomePage() {
 
               <div className="mt-7 flex max-w-md flex-wrap gap-x-7 gap-y-3 text-left">
                 {[
-                  { k: combinedDisplay, v: "Active tests" },
-                {
-  k: isLoading ? "…" : String((categories.length || 0) + pwBatchCount),
-  v: "Categories",
-},
+                  { k: isLoading ? "…" : String(totalTests || 0), v: totalTests === 1 ? "Active test" : "Active tests" },
+                  { k: isLoading ? "…" : String(categories.length || 0), v: categories.length === 1 ? "Category" : "Categories" },
                   { k: "Free", v: "No signup needed" },
                 ].map((s) => (
                   <div key={s.v}>
@@ -117,7 +92,6 @@ function HomePage() {
                 ))}
               </div>
             </div>
-
 
             {/* Brand panel */}
             <div className="relative" style={{ animation: "fade-up 0.6s 0.1s both" }}>
@@ -155,7 +129,7 @@ function HomePage() {
         </div>
       </section>
 
-      {/* FEATURES */}
+      {/* FEATURES — 2x3 compact grid */}
       <section id="features" className="border-y-2 border-ink/10 bg-surface py-16">
         <div className="mx-auto max-w-6xl px-5 sm:px-6">
           <div className="mx-auto max-w-2xl text-center">
@@ -195,9 +169,10 @@ function HomePage() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* CTA — download-card style (matches user screenshot) */}
       <section className="mx-auto max-w-7xl px-5 py-16 sm:px-6">
         <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[oklch(0.45_0.27_265)] via-[oklch(0.42_0.27_268)] to-[oklch(0.32_0.22_270)] p-7 text-background shadow-elevated sm:p-12">
+          {/* Soft top-left light source like in screenshot */}
           <div className="pointer-events-none absolute -left-10 -top-20 h-72 w-72 rounded-full bg-white/35 blur-3xl" />
           <div className="pointer-events-none absolute right-10 bottom-10 h-40 w-40 rounded-full bg-primary-glow/30 blur-3xl" />
 
@@ -213,6 +188,7 @@ function HomePage() {
             </p>
           </div>
 
+          {/* Brand badge bottom-left like reference */}
           <div className="relative mt-8 flex items-center justify-between gap-4">
             <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-background p-1.5 shadow-soft ring-2 ring-background/40">
               <img src={logoVx} alt="AdhyayX" className="h-full w-full rounded-full object-cover" />
@@ -227,7 +203,7 @@ function HomePage() {
         </div>
       </section>
 
-      {/* FAQ */}
+      {/* FAQ — modern accordion */}
       <section id="faq" className="mx-auto max-w-3xl px-5 pb-16 sm:px-6">
         <div className="text-center">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.2em] text-primary">

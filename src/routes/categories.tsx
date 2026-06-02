@@ -11,9 +11,9 @@ import logoVx from "@/assets/logo-vx.jpg";
 export const Route = createFileRoute("/categories")({
   head: () => ({
     meta: [
-      { title: "All Categories — AdhyayX" },
+      { title: "All Categories — VidyaX by EduSpark" },
       { name: "description", content: "Browse all test categories — JEE, NEET, GATE, Class 10 boards & more." },
-      { property: "og:title", content: "All Categories — AdhyayX" },
+      { property: "og:title", content: "All Categories — VidyaX" },
       { property: "og:description", content: "Pick a stream to see its mock tests." },
     ],
   }),
@@ -46,7 +46,7 @@ function CategoriesPage() {
         </div>
       </section>
 
-      {/* Current Affairs + Daily News */}
+      {/* Current Affairs + Daily News — ABOVE tests, two clean separate boxes */}
       <section className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 sm:pt-10">
         <div className="mb-4 flex items-end justify-between">
           <div>
@@ -114,6 +114,7 @@ function CategoriesPage() {
           </div>
         )}
       </section>
+
 
       <Footer />
     </div>
