@@ -49,7 +49,9 @@ function BookDetailPage() {
   if (!book) throw notFound();
 
   // Google Docs viewer for inline PDF preview (handles attachment content-disposition)
-  const previewUrl = `https://docs.google.com/gview?url=${encodeURIComponent(book.downloadUrl)}&embedded=true`;
+const bookId = book.id || book._id;
+const downloadPath = `/api/books/dl/${bookId}`;
+const previewUrl = `${downloadPath}?view=1`;
 
   return (
     <div className="min-h-screen bg-background">
@@ -102,19 +104,20 @@ function BookDetailPage() {
 
               <div className="mt-4 flex flex-wrap gap-3">
                 <a
-                  href={book.downloadUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-bold text-background shadow-elevated transition-opacity hover:opacity-90"
-                >
-                  <Download className="h-4 w-4" /> Download PDF
+                  href={downloadPath}
+download
+className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-bold text-background shadow-elevated transition-opacity hover:opacity-90"
+>
+  <Download className="h-4 w-4" /> Download PDF
                 </a>
                 <a
-                  href="#preview"
-                  className="inline-flex items-center gap-2 rounded-full border-2 border-ink/15 bg-card px-5 py-2.5 text-sm font-bold transition-colors hover:border-foreground"
-                >
-                  <Eye className="h-4 w-4" /> View preview
-                </a>
+                  href={previewUrl}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="inline-flex items-center gap-2 rounded-full border-2 border-ink/15 bg-card px-5 py-2.5 text-sm font-bold transition-colors hover:border-foreground"
+>
+  <Eye className="h-4 w-4" /> View preview
+</a>
               </div>
 
               <div className="mt-4 grid grid-cols-3 gap-2 text-center sm:max-w-md">
@@ -154,9 +157,9 @@ function BookDetailPage() {
               <h2 className="font-display text-lg font-bold sm:text-xl">First pages preview</h2>
             </div>
             <a
-              href={book.downloadUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={downloadPath}
+target="_blank"
+rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink/10 bg-background px-3 py-1.5 text-[11px] font-bold transition-colors hover:border-foreground"
             >
               <Download className="h-3.5 w-3.5" /> Full PDF
