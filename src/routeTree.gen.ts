@@ -13,10 +13,12 @@ import { Route as PwRouteImport } from './routes/pw'
 import { Route as DailyNewsRouteImport } from './routes/daily-news'
 import { Route as CurrentAffairsRouteImport } from './routes/current-affairs'
 import { Route as CategoriesRouteImport } from './routes/categories'
+import { Route as BooksRouteImport } from './routes/books'
 import { Route as AiRouteImport } from './routes/ai'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TestTestIdRouteImport } from './routes/test.$testId'
 import { Route as CategoryStreamRouteImport } from './routes/category.$stream'
+import { Route as BooksBookIdRouteImport } from './routes/books.$bookId'
 import { Route as ApiAiRouteImport } from './routes/api.ai'
 import { Route as PwTestTestIdRouteImport } from './routes/pw.test.$testId'
 import { Route as ApiPublicNewsRouteImport } from './routes/api.public.news'
@@ -44,6 +46,11 @@ const CategoriesRoute = CategoriesRouteImport.update({
   path: '/categories',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BooksRoute = BooksRouteImport.update({
+  id: '/books',
+  path: '/books',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AiRoute = AiRouteImport.update({
   id: '/ai',
   path: '/ai',
@@ -63,6 +70,11 @@ const CategoryStreamRoute = CategoryStreamRouteImport.update({
   id: '/category/$stream',
   path: '/category/$stream',
   getParentRoute: () => rootRouteImport,
+} as any)
+const BooksBookIdRoute = BooksBookIdRouteImport.update({
+  id: '/$bookId',
+  path: '/$bookId',
+  getParentRoute: () => BooksRoute,
 } as any)
 const ApiAiRoute = ApiAiRouteImport.update({
   id: '/api/ai',
@@ -98,11 +110,13 @@ const ApiPublicAffairIdRoute = ApiPublicAffairIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ai': typeof AiRoute
+  '/books': typeof BooksRouteWithChildren
   '/categories': typeof CategoriesRoute
   '/current-affairs': typeof CurrentAffairsRoute
   '/daily-news': typeof DailyNewsRoute
   '/pw': typeof PwRouteWithChildren
   '/api/ai': typeof ApiAiRoute
+  '/books/$bookId': typeof BooksBookIdRoute
   '/category/$stream': typeof CategoryStreamRoute
   '/test/$testId': typeof TestTestIdRoute
   '/api/public/affairs': typeof ApiPublicAffairsRoute
@@ -114,11 +128,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai': typeof AiRoute
+  '/books': typeof BooksRouteWithChildren
   '/categories': typeof CategoriesRoute
   '/current-affairs': typeof CurrentAffairsRoute
   '/daily-news': typeof DailyNewsRoute
   '/pw': typeof PwRouteWithChildren
   '/api/ai': typeof ApiAiRoute
+  '/books/$bookId': typeof BooksBookIdRoute
   '/category/$stream': typeof CategoryStreamRoute
   '/test/$testId': typeof TestTestIdRoute
   '/api/public/affairs': typeof ApiPublicAffairsRoute
@@ -131,11 +147,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ai': typeof AiRoute
+  '/books': typeof BooksRouteWithChildren
   '/categories': typeof CategoriesRoute
   '/current-affairs': typeof CurrentAffairsRoute
   '/daily-news': typeof DailyNewsRoute
   '/pw': typeof PwRouteWithChildren
   '/api/ai': typeof ApiAiRoute
+  '/books/$bookId': typeof BooksBookIdRoute
   '/category/$stream': typeof CategoryStreamRoute
   '/test/$testId': typeof TestTestIdRoute
   '/api/public/affairs': typeof ApiPublicAffairsRoute
@@ -149,11 +167,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/ai'
+    | '/books'
     | '/categories'
     | '/current-affairs'
     | '/daily-news'
     | '/pw'
     | '/api/ai'
+    | '/books/$bookId'
     | '/category/$stream'
     | '/test/$testId'
     | '/api/public/affairs'
@@ -165,11 +185,13 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/ai'
+    | '/books'
     | '/categories'
     | '/current-affairs'
     | '/daily-news'
     | '/pw'
     | '/api/ai'
+    | '/books/$bookId'
     | '/category/$stream'
     | '/test/$testId'
     | '/api/public/affairs'
@@ -181,11 +203,13 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/ai'
+    | '/books'
     | '/categories'
     | '/current-affairs'
     | '/daily-news'
     | '/pw'
     | '/api/ai'
+    | '/books/$bookId'
     | '/category/$stream'
     | '/test/$testId'
     | '/api/public/affairs'
@@ -198,6 +222,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AiRoute: typeof AiRoute
+  BooksRoute: typeof BooksRouteWithChildren
   CategoriesRoute: typeof CategoriesRoute
   CurrentAffairsRoute: typeof CurrentAffairsRoute
   DailyNewsRoute: typeof DailyNewsRoute
@@ -241,6 +266,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/books': {
+      id: '/books'
+      path: '/books'
+      fullPath: '/books'
+      preLoaderRoute: typeof BooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ai': {
       id: '/ai'
       path: '/ai'
@@ -268,6 +300,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/category/$stream'
       preLoaderRoute: typeof CategoryStreamRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/books/$bookId': {
+      id: '/books/$bookId'
+      path: '/$bookId'
+      fullPath: '/books/$bookId'
+      preLoaderRoute: typeof BooksBookIdRouteImport
+      parentRoute: typeof BooksRoute
     }
     '/api/ai': {
       id: '/api/ai'
@@ -314,6 +353,16 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface BooksRouteChildren {
+  BooksBookIdRoute: typeof BooksBookIdRoute
+}
+
+const BooksRouteChildren: BooksRouteChildren = {
+  BooksBookIdRoute: BooksBookIdRoute,
+}
+
+const BooksRouteWithChildren = BooksRoute._addFileChildren(BooksRouteChildren)
+
 interface PwRouteChildren {
   PwTestTestIdRoute: typeof PwTestTestIdRoute
 }
@@ -327,6 +376,7 @@ const PwRouteWithChildren = PwRoute._addFileChildren(PwRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiRoute: AiRoute,
+  BooksRoute: BooksRouteWithChildren,
   CategoriesRoute: CategoriesRoute,
   CurrentAffairsRoute: CurrentAffairsRoute,
   DailyNewsRoute: DailyNewsRoute,
@@ -342,3 +392,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
