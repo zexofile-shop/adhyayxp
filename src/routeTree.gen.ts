@@ -25,6 +25,7 @@ import { Route as ApiPublicNewsRouteImport } from './routes/api.public.news'
 import { Route as ApiPublicAffairsRouteImport } from './routes/api.public.affairs'
 import { Route as ApiPublicPwSplatRouteImport } from './routes/api.public.pw.$'
 import { Route as ApiPublicAffairIdRouteImport } from './routes/api.public.affair.$id'
+import { Route as ApiBooksDlBookIdRouteImport } from './routes/api.books.dl.$bookId'
 
 const PwRoute = PwRouteImport.update({
   id: '/pw',
@@ -106,6 +107,11 @@ const ApiPublicAffairIdRoute = ApiPublicAffairIdRouteImport.update({
   path: '/api/public/affair/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBooksDlBookIdRoute = ApiBooksDlBookIdRouteImport.update({
+  id: '/api/books/dl/$bookId',
+  path: '/api/books/dl/$bookId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/api/public/affairs': typeof ApiPublicAffairsRoute
   '/api/public/news': typeof ApiPublicNewsRoute
   '/pw/test/$testId': typeof PwTestTestIdRoute
+  '/api/books/dl/$bookId': typeof ApiBooksDlBookIdRoute
   '/api/public/affair/$id': typeof ApiPublicAffairIdRoute
   '/api/public/pw/$': typeof ApiPublicPwSplatRoute
 }
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/api/public/affairs': typeof ApiPublicAffairsRoute
   '/api/public/news': typeof ApiPublicNewsRoute
   '/pw/test/$testId': typeof PwTestTestIdRoute
+  '/api/books/dl/$bookId': typeof ApiBooksDlBookIdRoute
   '/api/public/affair/$id': typeof ApiPublicAffairIdRoute
   '/api/public/pw/$': typeof ApiPublicPwSplatRoute
 }
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/api/public/affairs': typeof ApiPublicAffairsRoute
   '/api/public/news': typeof ApiPublicNewsRoute
   '/pw/test/$testId': typeof PwTestTestIdRoute
+  '/api/books/dl/$bookId': typeof ApiBooksDlBookIdRoute
   '/api/public/affair/$id': typeof ApiPublicAffairIdRoute
   '/api/public/pw/$': typeof ApiPublicPwSplatRoute
 }
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/api/public/affairs'
     | '/api/public/news'
     | '/pw/test/$testId'
+    | '/api/books/dl/$bookId'
     | '/api/public/affair/$id'
     | '/api/public/pw/$'
   fileRoutesByTo: FileRoutesByTo
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/api/public/affairs'
     | '/api/public/news'
     | '/pw/test/$testId'
+    | '/api/books/dl/$bookId'
     | '/api/public/affair/$id'
     | '/api/public/pw/$'
   id:
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/api/public/affairs'
     | '/api/public/news'
     | '/pw/test/$testId'
+    | '/api/books/dl/$bookId'
     | '/api/public/affair/$id'
     | '/api/public/pw/$'
   fileRoutesById: FileRoutesById
@@ -232,6 +244,7 @@ export interface RootRouteChildren {
   TestTestIdRoute: typeof TestTestIdRoute
   ApiPublicAffairsRoute: typeof ApiPublicAffairsRoute
   ApiPublicNewsRoute: typeof ApiPublicNewsRoute
+  ApiBooksDlBookIdRoute: typeof ApiBooksDlBookIdRoute
   ApiPublicAffairIdRoute: typeof ApiPublicAffairIdRoute
   ApiPublicPwSplatRoute: typeof ApiPublicPwSplatRoute
 }
@@ -350,6 +363,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAffairIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/books/dl/$bookId': {
+      id: '/api/books/dl/$bookId'
+      path: '/api/books/dl/$bookId'
+      fullPath: '/api/books/dl/$bookId'
+      preLoaderRoute: typeof ApiBooksDlBookIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -386,9 +406,20 @@ const rootRouteChildren: RootRouteChildren = {
   TestTestIdRoute: TestTestIdRoute,
   ApiPublicAffairsRoute: ApiPublicAffairsRoute,
   ApiPublicNewsRoute: ApiPublicNewsRoute,
+  ApiBooksDlBookIdRoute: ApiBooksDlBookIdRoute,
   ApiPublicAffairIdRoute: ApiPublicAffairIdRoute,
   ApiPublicPwSplatRoute: ApiPublicPwSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
