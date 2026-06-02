@@ -235,8 +235,7 @@ function BookCard({ book, index }: { book: Book; index: number }) {
             <Download className="h-3 w-3" /> Get
           </a>
         </div>
-        <div className="flex items-center justify-between text-[9px] text-muted-foreground tabular-nums sm:text-[10px]">
-          <span>{book.totalPages ? `${book.totalPages}p` : "—"}</span>
+        <div className="flex items-center justify-end text-[9px] text-muted-foreground tabular-nums sm:text-[10px]">
           <span>{formatBytes(book.compressedSizeBytes)}</span>
         </div>
       </div>

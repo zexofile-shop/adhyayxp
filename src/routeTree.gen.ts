@@ -21,6 +21,7 @@ import { Route as CategoryStreamRouteImport } from './routes/category.$stream'
 import { Route as BooksBookIdRouteImport } from './routes/books_.$bookId'
 import { Route as ApiAiRouteImport } from './routes/api.ai'
 import { Route as PwTestTestIdRouteImport } from './routes/pw.test.$testId'
+import { Route as BooksReadBookIdRouteImport } from './routes/books_.read.$bookId'
 import { Route as ApiPublicNewsRouteImport } from './routes/api.public.news'
 import { Route as ApiPublicAffairsRouteImport } from './routes/api.public.affairs'
 import { Route as ApiPublicPwSplatRouteImport } from './routes/api.public.pw.$'
@@ -87,6 +88,11 @@ const PwTestTestIdRoute = PwTestTestIdRouteImport.update({
   path: '/test/$testId',
   getParentRoute: () => PwRoute,
 } as any)
+const BooksReadBookIdRoute = BooksReadBookIdRouteImport.update({
+  id: '/books_/read/$bookId',
+  path: '/books/read/$bookId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicNewsRoute = ApiPublicNewsRouteImport.update({
   id: '/api/public/news',
   path: '/api/public/news',
@@ -127,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/test/$testId': typeof TestTestIdRoute
   '/api/public/affairs': typeof ApiPublicAffairsRoute
   '/api/public/news': typeof ApiPublicNewsRoute
+  '/books/read/$bookId': typeof BooksReadBookIdRoute
   '/pw/test/$testId': typeof PwTestTestIdRoute
   '/api/books/dl/$bookId': typeof ApiBooksDlBookIdRoute
   '/api/public/affair/$id': typeof ApiPublicAffairIdRoute
@@ -146,6 +153,7 @@ export interface FileRoutesByTo {
   '/test/$testId': typeof TestTestIdRoute
   '/api/public/affairs': typeof ApiPublicAffairsRoute
   '/api/public/news': typeof ApiPublicNewsRoute
+  '/books/read/$bookId': typeof BooksReadBookIdRoute
   '/pw/test/$testId': typeof PwTestTestIdRoute
   '/api/books/dl/$bookId': typeof ApiBooksDlBookIdRoute
   '/api/public/affair/$id': typeof ApiPublicAffairIdRoute
@@ -166,6 +174,7 @@ export interface FileRoutesById {
   '/test/$testId': typeof TestTestIdRoute
   '/api/public/affairs': typeof ApiPublicAffairsRoute
   '/api/public/news': typeof ApiPublicNewsRoute
+  '/books_/read/$bookId': typeof BooksReadBookIdRoute
   '/pw/test/$testId': typeof PwTestTestIdRoute
   '/api/books/dl/$bookId': typeof ApiBooksDlBookIdRoute
   '/api/public/affair/$id': typeof ApiPublicAffairIdRoute
@@ -187,6 +196,7 @@ export interface FileRouteTypes {
     | '/test/$testId'
     | '/api/public/affairs'
     | '/api/public/news'
+    | '/books/read/$bookId'
     | '/pw/test/$testId'
     | '/api/books/dl/$bookId'
     | '/api/public/affair/$id'
@@ -206,6 +216,7 @@ export interface FileRouteTypes {
     | '/test/$testId'
     | '/api/public/affairs'
     | '/api/public/news'
+    | '/books/read/$bookId'
     | '/pw/test/$testId'
     | '/api/books/dl/$bookId'
     | '/api/public/affair/$id'
@@ -225,6 +236,7 @@ export interface FileRouteTypes {
     | '/test/$testId'
     | '/api/public/affairs'
     | '/api/public/news'
+    | '/books_/read/$bookId'
     | '/pw/test/$testId'
     | '/api/books/dl/$bookId'
     | '/api/public/affair/$id'
@@ -245,6 +257,7 @@ export interface RootRouteChildren {
   TestTestIdRoute: typeof TestTestIdRoute
   ApiPublicAffairsRoute: typeof ApiPublicAffairsRoute
   ApiPublicNewsRoute: typeof ApiPublicNewsRoute
+  BooksReadBookIdRoute: typeof BooksReadBookIdRoute
   ApiBooksDlBookIdRoute: typeof ApiBooksDlBookIdRoute
   ApiPublicAffairIdRoute: typeof ApiPublicAffairIdRoute
   ApiPublicPwSplatRoute: typeof ApiPublicPwSplatRoute
@@ -336,6 +349,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PwTestTestIdRouteImport
       parentRoute: typeof PwRoute
     }
+    '/books_/read/$bookId': {
+      id: '/books_/read/$bookId'
+      path: '/books/read/$bookId'
+      fullPath: '/books/read/$bookId'
+      preLoaderRoute: typeof BooksReadBookIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/news': {
       id: '/api/public/news'
       path: '/api/public/news'
@@ -398,6 +418,7 @@ const rootRouteChildren: RootRouteChildren = {
   TestTestIdRoute: TestTestIdRoute,
   ApiPublicAffairsRoute: ApiPublicAffairsRoute,
   ApiPublicNewsRoute: ApiPublicNewsRoute,
+  BooksReadBookIdRoute: BooksReadBookIdRoute,
   ApiBooksDlBookIdRoute: ApiBooksDlBookIdRoute,
   ApiPublicAffairIdRoute: ApiPublicAffairIdRoute,
   ApiPublicPwSplatRoute: ApiPublicPwSplatRoute,

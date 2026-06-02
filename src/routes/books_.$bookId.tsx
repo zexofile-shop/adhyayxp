@@ -7,7 +7,6 @@ import {
   BookOpenCheck,
   Star,
   Calendar,
-  FileText,
   Globe,
   User,
   Building2,
@@ -159,12 +158,6 @@ function BookDetailPage() {
                     label={String(book.yearPublished)}
                   />
                 )}
-                {book.totalPages && (
-                  <Meta
-                    icon={<FileText className="h-3.5 w-3.5" />}
-                    label={`${book.totalPages} pages`}
-                  />
-                )}
                 {book.difficulty && (
                   <Meta
                     icon={<Layers className="h-3.5 w-3.5" />}
@@ -183,24 +176,17 @@ function BookDetailPage() {
                   <Download className="h-4 w-4" /> Download PDF
                 </a>
                 <a
-                  href="#preview"
+                  href={`/books/read/${bid}`}
                   className="inline-flex items-center gap-2 rounded-full border-2 border-ink/15 bg-card px-5 py-2.5 text-sm font-bold transition-colors hover:border-foreground"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    document.getElementById("preview")?.scrollIntoView({ behavior: "smooth" });
-                  }}
                 >
                   <BookOpenCheck className="h-4 w-4" /> Read Online
                 </a>
               </div>
 
-              {/* Real book info pills */}
+              {/* Real book info pills — only verified data, no fake stats */}
               <div className="mt-4 flex flex-wrap gap-2">
                 {book.compressedSizeBytes ? (
                   <InfoPill label="File Size" value={formatBytes(book.compressedSizeBytes)} />
-                ) : null}
-                {book.totalPages ? (
-                  <InfoPill label="Pages" value={String(book.totalPages)} />
                 ) : null}
                 {book.language ? (
                   <InfoPill label="Language" value={book.language} />
