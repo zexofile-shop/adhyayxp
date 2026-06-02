@@ -10,7 +10,7 @@ import { createFileRoute } from "@tanstack/react-router";
 //  3. Hum khud R2 ko fresh fetch karte hain (clean headers => kabhi block nahi)
 //  4. PDF body ko stream karke user ko bhej dete hain
 //  5. Content-Disposition HUM control karte hain:
-//        ?view=1  -> inline  (browser PDF viewer me khulega)
+//        ?view=2  -> inline  (browser PDF viewer me khulega)
 //        default  -> attachment download as adhyayx-<bookId>.pdf
 // =====================================================================
 
@@ -22,27 +22,25 @@ export const Route = createFileRoute("/api/books/dl/$bookId")({
       GET: async ({ params, request }) => {
         const id = (params as { bookId: string }).bookId;
         const url = new URL(request.url);
-        const isView = url.searchParams.get("view") === "1";
+        const viewParam = url.searchParams.get("view");
+        const isView = viewParam !== null && viewParam !== "0";
 
         try {
           // ---- Step 1: upstream se sirf redirect Location nikalo ----
           const upstream = `${UPSTREAM_BASE}/${id}`;
           const head = await fetch(upstream, {
             method: "GET",
-            redirect: "manual", // IMPORTANT: hum khud handle karenge
+            redirect: "manual",
             headers: {
               accept: "*/*",
             },
           });
 
-          // Agar 302/301/307/308 nahi mila to upstream ne directly response diya
-          // (shayad 404 ya direct file). Dono cases handle karte hain.
           let finalUrl: string | null = null;
           if (head.status >= 300 && head.status < 400) {
             finalUrl = head.headers.get("location");
           }
 
-          // Agar redirect nahi tha aur upstream khud OK hai, usi ko stream karo
           if (!finalUrl) {
             if (!head.ok) {
               return new Response(
@@ -54,8 +52,6 @@ export const Route = createFileRoute("/api/books/dl/$bookId")({
           }
 
           // ---- Step 2: presigned R2 URL ko fresh fetch karo ----
-          // Koi extra header mat bhejo — R2 sirf host sign karta hai,
-          // clean request hamesha kaam karti hai.
           const fileRes = await fetch(finalUrl, {
             method: "GET",
             redirect: "follow",
@@ -82,7 +78,6 @@ export const Route = createFileRoute("/api/books/dl/$bookId")({
   },
 });
 
-// Helper: PDF body ko proper headers ke saath wapis bhejta hai
 function streamPdf(res: Response, id: string, isView: boolean) {
   const contentType = res.headers.get("content-type") ?? "application/pdf";
   const contentLength = res.headers.get("content-length");
@@ -96,7 +91,6 @@ function streamPdf(res: Response, id: string, isView: boolean) {
     "content-disposition": disposition,
     "cache-control": "public, max-age=3600",
     "x-robots-tag": "noindex",
-    // iframe me khulne ke liye zaroori
     "x-content-type-options": "nosniff",
   };
   if (contentLength) headers["content-length"] = contentLength;

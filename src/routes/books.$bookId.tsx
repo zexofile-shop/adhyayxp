@@ -73,7 +73,7 @@ function BookDetailPage() {
   const bid = book.id || book._id;
   // Yeh URLs aapke OWN domain pe jaati hain — upstream URL chhupi rehti hai.
   const downloadPath = `/api/books/dl/${bid}`;
-  const viewPath = `${downloadPath}?view=1`;
+  const viewPath = `${downloadPath}?view=2`;
   // Preview ke liye bhi same inline URL use kar rahe hain (full PDF).
   const previewPath = viewPath;
 
@@ -149,6 +149,7 @@ function BookDetailPage() {
               <div className="mt-4 flex flex-wrap gap-3">
                 <a
                   href={downloadPath}
+                  download={`adhyayx-${bid}.pdf`}
                   className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-bold text-background shadow-elevated transition-opacity hover:opacity-90"
                 >
                   <Download className="h-4 w-4" /> Download PDF
@@ -210,6 +211,7 @@ function BookDetailPage() {
             </div>
             <a
               href={downloadPath}
+              download={`adhyayx-${bid}.pdf`}
               className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink/10 bg-background px-3 py-1.5 text-[11px] font-bold transition-colors hover:border-foreground"
             >
               <Download className="h-3.5 w-3.5" /> Download
