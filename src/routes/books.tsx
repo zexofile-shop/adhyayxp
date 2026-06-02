@@ -166,10 +166,21 @@ function BooksPage() {
   );
 }
 
+function toFilename(title: string): string {
+  return (
+    title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 80) + ".pdf"
+  );
+}
+
 function BookCard({ book, index }: { book: Book; index: number }) {
   const bid = book.id || book._id;
   const upstreamId = book.downloadUrl?.split("/").pop() || bid;
   const proxyDownload = `/api/books/dl/${upstreamId}`;
+  const filename = toFilename(book.title);
 
   return (
     <div
@@ -218,7 +229,7 @@ function BookCard({ book, index }: { book: Book; index: number }) {
           </Link>
           <a
             href={proxyDownload}
-            download={`adhyayx-${upstreamId}.pdf`}
+            download={filename}
             className="inline-flex items-center justify-center gap-1 rounded-full bg-foreground px-2 py-1.5 text-[10px] font-bold text-background transition-opacity hover:opacity-90 sm:text-[11px]"
           >
             <Download className="h-3 w-3" /> Get
