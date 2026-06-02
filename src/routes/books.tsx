@@ -11,7 +11,11 @@ export const Route = createFileRoute("/books")({
   head: () => ({
     meta: [
       { title: "Edu's Khazana — Free Books Library | AdhyayX" },
-      { name: "description", content: "Browse 770+ free competitive-exam books — SSC, Bank, UPSC, NDA, JEE, NEET. Powered by EduSpark." },
+      {
+        name: "description",
+        content:
+          "Browse 770+ free competitive-exam books — SSC, Bank, UPSC, NDA, JEE, NEET. Powered by EduSpark.",
+      },
       { property: "og:title", content: "Edu's Khazana — Free Books Library" },
       { property: "og:description", content: "770+ free competitive-exam books — view & download." },
     ],
@@ -59,7 +63,6 @@ function BooksPage() {
     });
   }, [all, q]);
 
-  // infinite scroll
   const PAGE = 24;
   const [shown, setShown] = useState(PAGE);
   useEffect(() => {
@@ -79,7 +82,6 @@ function BooksPage() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Header */}
       <section className="relative overflow-hidden border-b-2 border-ink/10 bg-foreground text-background">
         <div className="absolute inset-0 grid-bg opacity-20" />
         <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
@@ -91,10 +93,16 @@ function BooksPage() {
           </Link>
           <div className="mt-4 flex items-center gap-4">
             <div className="relative inline-flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-background p-1 shadow-soft sm:h-20 sm:w-20">
-              <img src={eduKhajanaLogo} alt="Edu's Khazana" className="h-full w-full rounded-xl object-cover" />
+              <img
+                src={eduKhajanaLogo}
+                alt="Edu's Khazana"
+                className="h-full w-full rounded-xl object-cover"
+              />
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary-glow">Powered by EduSpark</div>
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary-glow">
+                Powered by EduSpark
+              </div>
               <h1 className="font-display text-2xl font-bold sm:text-4xl">Edu's Khazana</h1>
               <p className="mt-1 text-xs text-background/70 sm:text-sm">
                 Free books for every competitive aspirant
@@ -118,12 +126,14 @@ function BooksPage() {
         </div>
       </section>
 
-      {/* Grid */}
       <section className="mx-auto max-w-7xl px-3 py-6 sm:px-6 sm:py-10">
         {isLoading ? (
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="h-72 animate-pulse rounded-2xl border-2 border-ink/10 bg-muted" />
+              <div
+                key={i}
+                className="h-72 animate-pulse rounded-2xl border-2 border-ink/10 bg-muted"
+              />
             ))}
           </div>
         ) : filtered.length === 0 ? (
@@ -140,7 +150,6 @@ function BooksPage() {
         )}
       </section>
 
-      {/* Fullscreen search overlay */}
       {searchOpen && (
         <SearchOverlay
           q={q}
@@ -158,6 +167,9 @@ function BooksPage() {
 }
 
 function BookCard({ book, index }: { book: Book; index: number }) {
+  const bid = book.id || book._id;
+  const proxyDownload = `/api/books/dl/${bid}`;
+
   return (
     <div
       className="group flex flex-col overflow-hidden rounded-2xl border-2 border-ink/10 bg-card transition-all hover:-translate-y-0.5 hover:border-foreground hover:shadow-elevated"
@@ -165,7 +177,7 @@ function BookCard({ book, index }: { book: Book; index: number }) {
     >
       <Link
         to="/books/$bookId"
-        params={{ bookId: book.id }}
+        params={{ bookId: bid }}
         className="relative block aspect-[3/4] overflow-hidden bg-muted"
       >
         {book.thumbnailUrl ? (
@@ -198,15 +210,13 @@ function BookCard({ book, index }: { book: Book; index: number }) {
         <div className="mt-auto grid grid-cols-2 gap-1.5 pt-1">
           <Link
             to="/books/$bookId"
-            params={{ bookId: book.id }}
+            params={{ bookId: bid }}
             className="inline-flex items-center justify-center gap-1 rounded-full border-2 border-ink/10 bg-background px-2 py-1.5 text-[10px] font-bold transition-colors hover:border-foreground sm:text-[11px]"
           >
             <Eye className="h-3 w-3" /> View
           </Link>
           <a
-            href={book.downloadUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={proxyDownload}
             className="inline-flex items-center justify-center gap-1 rounded-full bg-foreground px-2 py-1.5 text-[10px] font-bold text-background transition-opacity hover:opacity-90 sm:text-[11px]"
           >
             <Download className="h-3 w-3" /> Get
@@ -267,19 +277,26 @@ function SearchOverlay({
               <Link
                 key={b.id}
                 to="/books/$bookId"
-                params={{ bookId: b.id }}
+                params={{ bookId: b.id || b._id }}
                 onClick={onClose}
                 className="group flex flex-col overflow-hidden rounded-xl border-2 border-ink/10 bg-card transition-all hover:-translate-y-0.5 hover:border-foreground"
               >
                 <div className="aspect-[3/4] overflow-hidden bg-muted">
                   {b.thumbnailUrl && (
-                    <img src={b.thumbnailUrl} alt={b.title} loading="lazy" className="h-full w-full object-cover" />
+                    <img
+                      src={b.thumbnailUrl}
+                      alt={b.title}
+                      loading="lazy"
+                      className="h-full w-full object-cover"
+                    />
                   )}
                 </div>
                 <div className="p-2">
                   <div className="line-clamp-2 text-[11px] font-bold leading-snug">{b.title}</div>
                   {b.author && (
-                    <div className="line-clamp-1 text-[10px] text-muted-foreground">by {b.author}</div>
+                    <div className="line-clamp-1 text-[10px] text-muted-foreground">
+                      by {b.author}
+                    </div>
                   )}
                 </div>
               </Link>
