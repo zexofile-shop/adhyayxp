@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
-import { BookOpen } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
 
 const PREVIEW_PAGES = 15;
 
 export function BookPDFPreview({ url }: { url: string }) {
   const [numPages, setNumPages] = useState<number | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [pageWidth, setPageWidth] = useState(640);
@@ -15,72 +16,121 @@ export function BookPDFPreview({ url }: { url: string }) {
   useEffect(() => {
     pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
     const updateWidth = () => {
-      const container = document.getElementById("pdf-preview-container");
-      setPageWidth(container ? container.clientWidth - 24 : Math.min(window.innerWidth - 64, 720));
+      const el = document.getElementById("pdf-slide-container");
+      setPageWidth(el ? el.clientWidth : Math.min(window.innerWidth - 40, 720));
     };
     updateWidth();
     window.addEventListener("resize", updateWidth);
     return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (!numPages) return;
+      const total = Math.min(PREVIEW_PAGES, numPages);
+      if (e.key === "ArrowRight" || e.key === "ArrowDown")
+        setCurrentPage((p) => Math.min(p + 1, total));
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp")
+        setCurrentPage((p) => Math.max(p - 1, 1));
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [numPages]);
+
+  const totalPreview = Math.min(PREVIEW_PAGES, numPages ?? PREVIEW_PAGES);
+  const goPrev = () => setCurrentPage((p) => Math.max(p - 1, 1));
+  const goNext = () => setCurrentPage((p) => Math.min(p + 1, totalPreview));
+
   if (error) {
     return (
       <div className="flex h-48 flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-ink/15 text-sm text-muted-foreground">
         <BookOpen className="h-8 w-8 opacity-30" />
-        <p>Preview load nahi ho saka. Download karke dekho.</p>
+        <p>Preview could not be loaded. Please download to read.</p>
       </div>
     );
   }
 
-  const pagesToShow = Math.min(PREVIEW_PAGES, numPages ?? PREVIEW_PAGES);
-
   return (
-    <div id="pdf-preview-container" className="flex flex-col items-center gap-5 py-4">
-      {loading && (
-        <div className="flex h-64 flex-col items-center justify-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <p className="text-[12px] text-muted-foreground">Preview load ho raha hai...</p>
-        </div>
-      )}
-
-      <Document
-        file={url}
-        onLoadSuccess={({ numPages: n }) => {
-          setNumPages(n);
-          setLoading(false);
-        }}
-        onLoadError={() => {
-          setError(true);
-          setLoading(false);
-        }}
-        loading={null}
-        className="flex w-full flex-col items-center gap-4"
-      >
-        {Array.from({ length: pagesToShow }, (_, i) => (
-          <div
-            key={i + 1}
-            className="relative w-full overflow-hidden rounded-xl border-2 border-ink/10 shadow-elevated"
-          >
-            <div className="absolute left-2 top-2 z-10 rounded-full bg-foreground/70 px-2 py-0.5 text-[9px] font-bold text-background">
-              {i + 1}
-            </div>
-            <Page
-              pageNumber={i + 1}
-              width={pageWidth}
-              renderAnnotationLayer={false}
-              renderTextLayer={false}
-              className="block"
-            />
+    <div id="pdf-slide-container" className="select-none">
+      <div className="relative overflow-hidden rounded-2xl border-2 border-ink/10 bg-muted shadow-elevated min-h-[200px]">
+        {loading && (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-muted">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <p className="text-xs text-muted-foreground">Loading preview...</p>
           </div>
-        ))}
-      </Document>
+        )}
+
+        <Document
+          file={url}
+          onLoadSuccess={({ numPages: n }) => {
+            setNumPages(n);
+            setLoading(false);
+          }}
+          onLoadError={() => {
+            setError(true);
+            setLoading(false);
+          }}
+          loading={null}
+        >
+          <Page
+            key={currentPage}
+            pageNumber={currentPage}
+            width={pageWidth}
+            renderAnnotationLayer={false}
+            renderTextLayer={false}
+            className="block"
+          />
+        </Document>
+      </div>
 
       {!loading && numPages !== null && (
-        <div className="rounded-full border-2 border-ink/10 bg-card px-4 py-1.5 text-[11px] font-bold text-muted-foreground">
-          {numPages > PREVIEW_PAGES
-            ? `First ${PREVIEW_PAGES} of ${numPages} pages • Download for full book`
-            : `All ${numPages} pages shown`}
-        </div>
+        <>
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <button
+              onClick={goPrev}
+              disabled={currentPage === 1}
+              className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink/15 px-4 py-2 text-sm font-bold transition-colors hover:border-foreground disabled:cursor-not-allowed disabled:opacity-30"
+            >
+              <ChevronLeft className="h-4 w-4" /> Previous
+            </button>
+
+            <div className="flex flex-col items-center">
+              <span className="font-display text-sm font-bold tabular-nums">
+                {currentPage} / {totalPreview}
+              </span>
+              <span className="text-[10px] text-muted-foreground">
+                {numPages > PREVIEW_PAGES
+                  ? `Preview · ${numPages} pages in full book`
+                  : `${numPages} pages total`}
+              </span>
+            </div>
+
+            <button
+              onClick={goNext}
+              disabled={currentPage === totalPreview}
+              className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink/15 px-4 py-2 text-sm font-bold transition-colors hover:border-foreground disabled:cursor-not-allowed disabled:opacity-30"
+            >
+              Next <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+
+          {totalPreview <= 15 && (
+            <div className="mt-3 flex justify-center gap-1.5">
+              {Array.from({ length: totalPreview }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentPage(i + 1)}
+                  aria-label={`Go to page ${i + 1}`}
+                  className={`h-1.5 rounded-full transition-all ${
+                    i + 1 === currentPage
+                      ? "w-6 bg-foreground"
+                      : "w-1.5 bg-ink/20 hover:bg-ink/40"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

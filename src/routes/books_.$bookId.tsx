@@ -4,8 +4,7 @@ import { useState, useEffect, Suspense, lazy } from "react";
 import {
   ChevronLeft,
   Download,
-  Eye,
-  BookOpen,
+  BookOpenCheck,
   Star,
   Calendar,
   FileText,
@@ -13,6 +12,7 @@ import {
   User,
   Building2,
   Layers,
+  BookOpen,
 } from "lucide-react";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
@@ -44,7 +44,7 @@ export const Route = createFileRoute("/books_/$bookId")({
   }),
   errorComponent: ({ error }) => (
     <div className="p-10 text-center text-sm text-muted-foreground">
-      Couldn't load book: {error.message}
+      Could not load book: {error.message}
     </div>
   ),
   notFoundComponent: () => (
@@ -91,9 +91,9 @@ function BookDetailPage() {
 
   const bid = book.id || book._id;
   const upstreamId = book.downloadUrl?.split("/").pop() || bid;
-  const downloadPath = `/api/books/dl/${upstreamId}`;
-  const viewPath = `${downloadPath}?view=2`;
   const filename = toFilename(book.title);
+  const downloadPath = `/api/books/dl/${upstreamId}?fn=${encodeURIComponent(filename)}`;
+  const viewPath = `/api/books/dl/${upstreamId}?view=2&fn=${encodeURIComponent(filename)}`;
 
   return (
     <div className="min-h-screen bg-background">
@@ -183,23 +183,31 @@ function BookDetailPage() {
                   <Download className="h-4 w-4" /> Download PDF
                 </a>
                 <a
-                  href={viewPath}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="#preview"
                   className="inline-flex items-center gap-2 rounded-full border-2 border-ink/15 bg-card px-5 py-2.5 text-sm font-bold transition-colors hover:border-foreground"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document.getElementById("preview")?.scrollIntoView({ behavior: "smooth" });
+                  }}
                 >
-                  <Eye className="h-4 w-4" /> Open full PDF
+                  <BookOpenCheck className="h-4 w-4" /> Read Online
                 </a>
               </div>
 
-              {/* Stats */}
-              <div className="mt-4 grid grid-cols-3 gap-2 text-center sm:max-w-md">
-                <Stat label="Size" value={formatBytes(book.compressedSizeBytes)} />
-                <Stat
-                  label="Downloads"
-                  value={(book.downloadCount ?? 0).toLocaleString("en-IN")}
-                />
-                <Stat label="Views" value={(book.viewCount ?? 0).toLocaleString("en-IN")} />
+              {/* Real book info pills */}
+              <div className="mt-4 flex flex-wrap gap-2">
+                {book.compressedSizeBytes ? (
+                  <InfoPill label="File Size" value={formatBytes(book.compressedSizeBytes)} />
+                ) : null}
+                {book.totalPages ? (
+                  <InfoPill label="Pages" value={String(book.totalPages)} />
+                ) : null}
+                {book.language ? (
+                  <InfoPill label="Language" value={book.language} />
+                ) : null}
+                {book.yearPublished ? (
+                  <InfoPill label="Year" value={String(book.yearPublished)} />
+                ) : null}
               </div>
             </div>
           </div>
@@ -230,14 +238,14 @@ function BookDetailPage() {
         )}
 
         {/* ── PDF Preview ── */}
-        <div id="preview" className="rounded-2xl border-2 border-ink/10 bg-card p-4 sm:p-6">
+        <div id="preview" className="scroll-mt-20 rounded-2xl border-2 border-ink/10 bg-card p-4 sm:p-6">
           <div className="mb-4 flex items-center justify-between gap-2">
             <div>
               <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
-                Preview
+                Read Online
               </div>
               <h2 className="font-display text-lg font-bold sm:text-xl">
-                First 15 pages
+                First 15 pages preview
               </h2>
             </div>
             <a
@@ -249,13 +257,12 @@ function BookDetailPage() {
             </a>
           </div>
 
-          {/* Render PDF only on client to avoid SSR issues */}
           {mounted ? (
             <Suspense
               fallback={
                 <div className="flex h-64 flex-col items-center justify-center gap-3">
                   <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                  <p className="text-[12px] text-muted-foreground">Preview load ho raha hai...</p>
+                  <p className="text-xs text-muted-foreground">Loading preview...</p>
                 </div>
               }
             >
@@ -264,12 +271,12 @@ function BookDetailPage() {
           ) : (
             <div className="flex h-64 flex-col items-center justify-center gap-3">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-              <p className="text-[12px] text-muted-foreground">Preview load ho raha hai...</p>
+              <p className="text-xs text-muted-foreground">Loading preview...</p>
             </div>
           )}
 
-          <p className="mt-3 text-[11px] text-muted-foreground">
-            Pura book padhne ke liye <strong>Open full PDF</strong> ya <strong>Download</strong> karo.
+          <p className="mt-4 text-[11px] text-muted-foreground">
+            Use arrow keys or buttons to flip pages. Download for the complete book.
           </p>
         </div>
       </section>
@@ -288,15 +295,13 @@ function Meta({ icon, label }: { icon: React.ReactNode; label: string }) {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function InfoPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border-2 border-ink/10 bg-card p-2.5">
-      <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+    <div className="inline-flex items-baseline gap-1.5 rounded-full border-2 border-ink/10 bg-surface px-3 py-1">
+      <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
         {label}
-      </div>
-      <div className="mt-0.5 font-display text-sm font-bold tabular-nums sm:text-base">
-        {value}
-      </div>
+      </span>
+      <span className="font-display text-xs font-bold tabular-nums">{value}</span>
     </div>
   );
 }
