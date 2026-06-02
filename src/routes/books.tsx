@@ -168,7 +168,8 @@ function BooksPage() {
 
 function BookCard({ book, index }: { book: Book; index: number }) {
   const bid = book.id || book._id;
-  const proxyDownload = `/api/books/dl/${bid}`;
+  const upstreamId = book.downloadUrl?.split("/").pop() || bid;
+  const proxyDownload = `/api/books/dl/${upstreamId}`;
 
   return (
     <div
@@ -217,7 +218,7 @@ function BookCard({ book, index }: { book: Book; index: number }) {
           </Link>
           <a
             href={proxyDownload}
-            download={`adhyayx-${bid}.pdf`}
+            download={`adhyayx-${upstreamId}.pdf`}
             className="inline-flex items-center justify-center gap-1 rounded-full bg-foreground px-2 py-1.5 text-[10px] font-bold text-background transition-opacity hover:opacity-90 sm:text-[11px]"
           >
             <Download className="h-3 w-3" /> Get
