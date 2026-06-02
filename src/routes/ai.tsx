@@ -43,7 +43,7 @@ function AiPage() {
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -99,13 +99,13 @@ function AiPage() {
       return;
     }
 
-    const recognition = new SR() as SpeechRecognition;
+    const recognition = new SR();
     recognition.lang = "hi-IN";
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
     recognition.onstart = () => setIsRecording(true);
-    recognition.onresult = (e: SpeechRecognitionEvent) => {
+    recognition.onresult = (e: any) => {
       const transcript = e.results[0][0].transcript;
       setInput(transcript);
       setIsRecording(false);
