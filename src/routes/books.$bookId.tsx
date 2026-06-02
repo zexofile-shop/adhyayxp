@@ -43,7 +43,10 @@ export const Route = createFileRoute("/books/$bookId")({
 });
 
 function BookDetailPage() {
-  const { bookId: routeBookId } = Route.useParams();
+  // NOTE: destructure mat karo, warna TanStack code-splitter
+  // `bookId` ko duplicate-declare kar deta hai (build error aata hai).
+  const params = Route.useParams();
+  const routeBookId = params.bookId;
 
   const { data, isLoading } = useQuery({
     queryKey: ["books"],
@@ -68,9 +71,11 @@ function BookDetailPage() {
   if (!book) throw notFound();
 
   const bid = book.id || book._id;
+  // Yeh URLs aapke OWN domain pe jaati hain — upstream URL chhupi rehti hai.
   const downloadPath = `/api/books/dl/${bid}`;
   const viewPath = `${downloadPath}?view=1`;
-  const previewPath = `${downloadPath}?preview=1`;
+  // Preview ke liye bhi same inline URL use kar rahe hain (full PDF).
+  const previewPath = viewPath;
 
   return (
     <div className="min-h-screen bg-background">
@@ -118,7 +123,9 @@ function BookDetailPage() {
               )}
 
               <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground sm:text-sm">
-                {book.author && <Meta icon={<User className="h-3.5 w-3.5" />} label={book.author} />}
+                {book.author && (
+                  <Meta icon={<User className="h-3.5 w-3.5" />} label={book.author} />
+                )}
                 {book.publisher && (
                   <Meta icon={<Building2 className="h-3.5 w-3.5" />} label={book.publisher} />
                 )}
@@ -170,7 +177,7 @@ function BookDetailPage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
-        {(book.genre?.length || book.subject?.length || book.examRelevance?.length) && (
+        {(book.genre?.length || book.subject?.length || book.examRelevance?.length) ? (
           <div className="mb-8 grid gap-4 sm:grid-cols-3">
             {book.genre?.length ? <TagBlock title="Genre" items={book.genre} /> : null}
             {book.subject?.length ? <TagBlock title="Subjects" items={book.subject} /> : null}
@@ -178,7 +185,7 @@ function BookDetailPage() {
               <TagBlock title="Exam relevance" items={book.examRelevance} />
             ) : null}
           </div>
-        )}
+        ) : null}
 
         {book.description && (
           <article className="mb-10 rounded-2xl border-2 border-ink/10 bg-card p-5 sm:p-7">
@@ -198,14 +205,14 @@ function BookDetailPage() {
                 Preview
               </div>
               <h2 className="font-display text-lg font-bold sm:text-xl">
-                First 10 pages preview
+                Full book preview
               </h2>
             </div>
             <a
               href={downloadPath}
               className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink/10 bg-background px-3 py-1.5 text-[11px] font-bold transition-colors hover:border-foreground"
             >
-              <Download className="h-3.5 w-3.5" /> Full PDF
+              <Download className="h-3.5 w-3.5" /> Download
             </a>
           </div>
           <div className="overflow-hidden rounded-xl border-2 border-ink/10 bg-muted">
@@ -216,7 +223,7 @@ function BookDetailPage() {
             />
           </div>
           <p className="mt-2 text-[11px] text-muted-foreground">
-            Sirf pehle 10 pages dikhaye gaye hain. Full book ke liye Download dabao.
+            Browser ke PDF viewer mein scroll karke pura book padh sakte hain. Save karne ke liye Download dabao.
           </p>
         </div>
       </section>
@@ -265,4 +272,3 @@ function TagBlock({ title, items }: { title: string; items: string[] }) {
     </div>
   );
 }
-
