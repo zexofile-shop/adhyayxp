@@ -6,6 +6,12 @@ import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
 
 const PREVIEW_PAGES = 15;
 
+const PDF_OPTIONS = {
+  disableStream: false,
+  disableAutoFetch: false,
+  rangeChunkSize: 65536,
+};
+
 export function BookPDFPreview({ url }: { url: string }) {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -71,6 +77,7 @@ export function BookPDFPreview({ url }: { url: string }) {
             setLoading(false);
           }}
           loading={null}
+          options={PDF_OPTIONS}
         >
           <Page
             key={currentPage}

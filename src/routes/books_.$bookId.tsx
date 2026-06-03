@@ -89,10 +89,15 @@ function BookDetailPage() {
   if (!book) throw notFound();
 
   const bid = book.id || book._id;
-  const upstreamId = book.downloadUrl?.split("/").pop() || bid;
+  const upstreamId = book.downloadUrl?.split("/").pop();
   const filename = toFilename(book.title);
-  const downloadPath = `/api/books/dl/${upstreamId}?fn=${encodeURIComponent(filename)}`;
-  const viewPath = `/api/books/dl/${upstreamId}?view=2&fn=${encodeURIComponent(filename)}`;
+  const hasDirectDownload = !!upstreamId;
+  const downloadPath = hasDirectDownload
+    ? `/api/books/dl/${upstreamId}?fn=${encodeURIComponent(filename)}`
+    : (book.externalDownloadUrl ?? null);
+  const viewPath = hasDirectDownload
+    ? `/api/books/dl/${upstreamId}?view=2&fn=${encodeURIComponent(filename)}`
+    : null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -168,19 +173,25 @@ function BookDetailPage() {
 
               {/* Action buttons */}
               <div className="mt-5 flex flex-wrap gap-3">
-                <a
-                  href={downloadPath}
-                  download={filename}
-                  className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-bold text-background shadow-elevated transition-opacity hover:opacity-90"
-                >
-                  <Download className="h-4 w-4" /> Download PDF
-                </a>
-                <a
-                  href={`/books/read/${bid}`}
-                  className="inline-flex items-center gap-2 rounded-full border-2 border-ink/15 bg-card px-5 py-2.5 text-sm font-bold transition-colors hover:border-foreground"
-                >
-                  <BookOpenCheck className="h-4 w-4" /> Read Online
-                </a>
+                {downloadPath ? (
+                  <a
+                    href={downloadPath}
+                    download={hasDirectDownload ? filename : undefined}
+                    target={hasDirectDownload ? undefined : "_blank"}
+                    rel={hasDirectDownload ? undefined : "noopener noreferrer"}
+                    className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-bold text-background shadow-elevated transition-opacity hover:opacity-90"
+                  >
+                    <Download className="h-4 w-4" /> Download PDF
+                  </a>
+                ) : null}
+                {hasDirectDownload ? (
+                  <a
+                    href={`/books/read/${bid}`}
+                    className="inline-flex items-center gap-2 rounded-full border-2 border-ink/15 bg-card px-5 py-2.5 text-sm font-bold transition-colors hover:border-foreground"
+                  >
+                    <BookOpenCheck className="h-4 w-4" /> Read Online
+                  </a>
+                ) : null}
               </div>
 
               {/* Real book info pills — only verified data, no fake stats */}
@@ -231,39 +242,62 @@ function BookDetailPage() {
                 Read Online
               </div>
               <h2 className="font-display text-lg font-bold sm:text-xl">
-                First 15 pages preview
+                {hasDirectDownload ? "First 15 pages preview" : "Preview unavailable"}
               </h2>
             </div>
-            <a
-              href={downloadPath}
-              download={filename}
-              className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-[11px] font-bold text-background transition-opacity hover:opacity-90"
-            >
-              <Download className="h-3.5 w-3.5" /> Download Full PDF
-            </a>
+            {downloadPath ? (
+              <a
+                href={downloadPath}
+                download={hasDirectDownload ? filename : undefined}
+                target={hasDirectDownload ? undefined : "_blank"}
+                rel={hasDirectDownload ? undefined : "noopener noreferrer"}
+                className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-[11px] font-bold text-background transition-opacity hover:opacity-90"
+              >
+                <Download className="h-3.5 w-3.5" /> Download Full PDF
+              </a>
+            ) : null}
           </div>
 
-          {mounted ? (
-            <Suspense
-              fallback={
-                <div className="flex h-64 flex-col items-center justify-center gap-3">
-                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                  <p className="text-xs text-muted-foreground">Loading preview...</p>
-                </div>
-              }
-            >
-              <BookPDFPreview url={viewPath} />
-            </Suspense>
+          {hasDirectDownload ? (
+            mounted ? (
+              <Suspense
+                fallback={
+                  <div className="flex h-64 flex-col items-center justify-center gap-3">
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                    <p className="text-xs text-muted-foreground">Loading preview...</p>
+                  </div>
+                }
+              >
+                <BookPDFPreview url={viewPath!} />
+              </Suspense>
+            ) : (
+              <div className="flex h-64 flex-col items-center justify-center gap-3">
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <p className="text-xs text-muted-foreground">Loading preview...</p>
+              </div>
+            )
           ) : (
-            <div className="flex h-64 flex-col items-center justify-center gap-3">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-              <p className="text-xs text-muted-foreground">Loading preview...</p>
+            <div className="flex h-48 flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-ink/15 text-sm text-muted-foreground">
+              <BookOpen className="h-8 w-8 opacity-30" />
+              <p>In-browser preview not available for this book.</p>
+              {downloadPath && (
+                <a
+                  href={downloadPath}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-[11px] font-bold text-background transition-opacity hover:opacity-90"
+                >
+                  <Download className="h-3.5 w-3.5" /> Download to read
+                </a>
+              )}
             </div>
           )}
 
-          <p className="mt-4 text-[11px] text-muted-foreground">
-            Use arrow keys or buttons to flip pages. Download for the complete book.
-          </p>
+          {hasDirectDownload && (
+            <p className="mt-4 text-[11px] text-muted-foreground">
+              Use arrow keys or buttons to flip pages. Download for the complete book.
+            </p>
+          )}
         </div>
       </section>
 

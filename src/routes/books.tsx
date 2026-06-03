@@ -14,10 +14,10 @@ export const Route = createFileRoute("/books")({
       {
         name: "description",
         content:
-          "Browse 770+ free competitive-exam books — SSC, Bank, UPSC, NDA, JEE, NEET. Powered by EduSpark.",
+          "Browse 840+ free competitive-exam books — SSC, Bank, UPSC, NDA, JEE, NEET. Powered by EduSpark.",
       },
       { property: "og:title", content: "Edu's Khazana — Free Books Library" },
-      { property: "og:description", content: "770+ free competitive-exam books — view & download." },
+      { property: "og:description", content: "840+ free competitive-exam books — view & download." },
     ],
   }),
   errorComponent: ({ error }) => (
@@ -178,8 +178,11 @@ function toFilename(title: string): string {
 
 function BookCard({ book, index }: { book: Book; index: number }) {
   const bid = book.id || book._id;
-  const upstreamId = book.downloadUrl?.split("/").pop() || bid;
-  const proxyDownload = `/api/books/dl/${upstreamId}`;
+  const upstreamId = book.downloadUrl?.split("/").pop();
+  const hasDirectDownload = !!upstreamId;
+  const proxyDownload = hasDirectDownload
+    ? `/api/books/dl/${upstreamId}`
+    : (book.externalDownloadUrl ?? null);
   const filename = toFilename(book.title);
 
   return (
@@ -227,13 +230,25 @@ function BookCard({ book, index }: { book: Book; index: number }) {
           >
             <Eye className="h-3 w-3" /> View
           </Link>
-          <a
-            href={proxyDownload}
-            download={filename}
-            className="inline-flex items-center justify-center gap-1 rounded-full bg-foreground px-2 py-1.5 text-[10px] font-bold text-background transition-opacity hover:opacity-90 sm:text-[11px]"
-          >
-            <Download className="h-3 w-3" /> Get
-          </a>
+          {proxyDownload ? (
+            <a
+              href={proxyDownload}
+              download={hasDirectDownload ? filename : undefined}
+              target={hasDirectDownload ? undefined : "_blank"}
+              rel={hasDirectDownload ? undefined : "noopener noreferrer"}
+              className="inline-flex items-center justify-center gap-1 rounded-full bg-foreground px-2 py-1.5 text-[10px] font-bold text-background transition-opacity hover:opacity-90 sm:text-[11px]"
+            >
+              <Download className="h-3 w-3" /> Get
+            </a>
+          ) : (
+            <Link
+              to="/books/$bookId"
+              params={{ bookId: bid }}
+              className="inline-flex items-center justify-center gap-1 rounded-full bg-foreground/50 px-2 py-1.5 text-[10px] font-bold text-background transition-opacity hover:opacity-90 sm:text-[11px]"
+            >
+              <Eye className="h-3 w-3" /> View
+            </Link>
+          )}
         </div>
         <div className="flex items-center justify-end text-[9px] text-muted-foreground tabular-nums sm:text-[10px]">
           <span>{formatBytes(book.compressedSizeBytes)}</span>
