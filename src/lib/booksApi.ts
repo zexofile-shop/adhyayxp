@@ -21,7 +21,10 @@ export interface Book {
   viewCount?: number;
   compressedSizeBytes?: number;
   createdAt?: string;
-  downloadUrl: string;
+  /** Direct R2-backed download URL (old books). Derive upstream hex ID from this. */
+  downloadUrl?: string;
+  /** Fallback external link for newer books that don't yet have a direct downloadUrl. */
+  externalDownloadUrl?: string | null;
 }
 
 export interface BooksPayload {

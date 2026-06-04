@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
-import { fetchPwBatches, fetchPwTests, PW_CLASSES, PW_EXAMS } from "@/lib/pwApi";
+import { fetchPwBatches, fetchPwTests, fetchPwFilters, PW_CLASSES_FALLBACK, PW_EXAMS_FALLBACK } from "@/lib/pwApi";
 import { ArrowRight, ChevronLeft, Clock, FileText, Loader as Loader2 } from "lucide-react";
 import {
   Select,
@@ -36,10 +36,18 @@ export const Route = createFileRoute("/pw")({
 function PwPage() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  const [exam, setExam] = useState<(typeof PW_EXAMS)[number]>("IIT-JEE");
-  const [klass, setKlass] = useState<(typeof PW_CLASSES)[number]>("12");
-  const [batch, setBatch] = useState<{ id: string; catId: string; name: string } | null>(null);
+  const filters = useQuery({
+    queryKey: ["pw", "filters"],
+    queryFn: fetchPwFilters,
+    staleTime: 1000 * 60 * 60,
+  });
 
+  const examList: string[] = filters.data?.exam ?? [...PW_EXAMS_FALLBACK];
+  const classList: string[] = filters.data?.class ?? [...PW_CLASSES_FALLBACK];
+
+  const [exam, setExam] = useState<string>("IIT-JEE");
+  const [klass, setKlass] = useState<string>("12");
+  const [batch, setBatch] = useState<{ id: string; catId: string; name: string } | null>(null);
 
   const batches = useQuery({
     queryKey: ["pw", "batches", exam, klass],
@@ -96,15 +104,15 @@ function PwPage() {
               <Select
                 value={exam}
                 onValueChange={(v) => {
-                  setExam(v as (typeof PW_EXAMS)[number]);
+                  setExam(v);
                   setBatch(null);
                 }}
               >
                 <SelectTrigger className="h-10 rounded-xl border-2 border-ink/10 bg-card font-bold text-foreground">
                   <SelectValue placeholder="Select exam" />
                 </SelectTrigger>
-                <SelectContent>
-                  {PW_EXAMS.map((e) => (
+                <SelectContent className="max-h-72">
+                  {examList.map((e) => (
                     <SelectItem key={e} value={e} className="font-semibold">
                       {e}
                     </SelectItem>
@@ -119,17 +127,17 @@ function PwPage() {
               <Select
                 value={klass}
                 onValueChange={(v) => {
-                  setKlass(v as (typeof PW_CLASSES)[number]);
+                  setKlass(v);
                   setBatch(null);
                 }}
               >
                 <SelectTrigger className="h-10 rounded-xl border-2 border-ink/10 bg-card font-bold text-foreground">
                   <SelectValue placeholder="Select class" />
                 </SelectTrigger>
-                <SelectContent>
-                  {PW_CLASSES.map((c) => (
+                <SelectContent className="max-h-72">
+                  {classList.map((c) => (
                     <SelectItem key={c} value={c} className="font-semibold">
-                      {c === "Dropper" ? "Dropper" : `Class ${c}`}
+                      {/^\d+\+?$/.test(c) ? `Class ${c}` : c}
                     </SelectItem>
                   ))}
                 </SelectContent>

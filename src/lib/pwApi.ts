@@ -88,20 +88,31 @@ async function getJson<T>(path: string): Promise<T> {
   return j.data;
 }
 
-export const PW_EXAMS = [
+export const PW_EXAMS_FALLBACK = [
   "IIT-JEE",
   "NEET",
   "UPSC",
   "SSC",
   "GATE",
-  "CUET",
-  "Defence",
+  "CUET UG",
+  "NDA",
   "Banking",
-  "State PSC",
-  "Railways",
+  "Railway",
 ] as const;
 
-export const PW_CLASSES = ["9", "10", "11", "12", "Dropper"] as const;
+export const PW_CLASSES_FALLBACK = ["9", "10", "11", "12", "12+"] as const;
+
+// Back-compat exports (used by fetchPwTotal* aggregators below).
+export const PW_EXAMS = PW_EXAMS_FALLBACK;
+export const PW_CLASSES = PW_CLASSES_FALLBACK;
+
+export interface PwFilters {
+  exam: string[];
+  class: string[];
+}
+
+export const fetchPwFilters = () => getJson<PwFilters>("filters");
+
 
 export const fetchPwBatches = (exam: string, klass: string) =>
   getJson<PwBatch[]>(

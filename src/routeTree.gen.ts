@@ -18,13 +18,15 @@ import { Route as AiRouteImport } from './routes/ai'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TestTestIdRouteImport } from './routes/test.$testId'
 import { Route as CategoryStreamRouteImport } from './routes/category.$stream'
-import { Route as BooksBookIdRouteImport } from './routes/books.$bookId'
+import { Route as BooksBookIdRouteImport } from './routes/books_.$bookId'
 import { Route as ApiAiRouteImport } from './routes/api.ai'
 import { Route as PwTestTestIdRouteImport } from './routes/pw.test.$testId'
+import { Route as BooksReadBookIdRouteImport } from './routes/books_.read.$bookId'
 import { Route as ApiPublicNewsRouteImport } from './routes/api.public.news'
 import { Route as ApiPublicAffairsRouteImport } from './routes/api.public.affairs'
 import { Route as ApiPublicPwSplatRouteImport } from './routes/api.public.pw.$'
 import { Route as ApiPublicAffairIdRouteImport } from './routes/api.public.affair.$id'
+import { Route as ApiBooksDlBookIdRouteImport } from './routes/api.books.dl.$bookId'
 
 const PwRoute = PwRouteImport.update({
   id: '/pw',
@@ -72,9 +74,9 @@ const CategoryStreamRoute = CategoryStreamRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const BooksBookIdRoute = BooksBookIdRouteImport.update({
-  id: '/$bookId',
-  path: '/$bookId',
-  getParentRoute: () => BooksRoute,
+  id: '/books_/$bookId',
+  path: '/books/$bookId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAiRoute = ApiAiRouteImport.update({
   id: '/api/ai',
@@ -85,6 +87,11 @@ const PwTestTestIdRoute = PwTestTestIdRouteImport.update({
   id: '/test/$testId',
   path: '/test/$testId',
   getParentRoute: () => PwRoute,
+} as any)
+const BooksReadBookIdRoute = BooksReadBookIdRouteImport.update({
+  id: '/books_/read/$bookId',
+  path: '/books/read/$bookId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicNewsRoute = ApiPublicNewsRouteImport.update({
   id: '/api/public/news',
@@ -106,11 +113,16 @@ const ApiPublicAffairIdRoute = ApiPublicAffairIdRouteImport.update({
   path: '/api/public/affair/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBooksDlBookIdRoute = ApiBooksDlBookIdRouteImport.update({
+  id: '/api/books/dl/$bookId',
+  path: '/api/books/dl/$bookId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ai': typeof AiRoute
-  '/books': typeof BooksRouteWithChildren
+  '/books': typeof BooksRoute
   '/categories': typeof CategoriesRoute
   '/current-affairs': typeof CurrentAffairsRoute
   '/daily-news': typeof DailyNewsRoute
@@ -121,14 +133,16 @@ export interface FileRoutesByFullPath {
   '/test/$testId': typeof TestTestIdRoute
   '/api/public/affairs': typeof ApiPublicAffairsRoute
   '/api/public/news': typeof ApiPublicNewsRoute
+  '/books/read/$bookId': typeof BooksReadBookIdRoute
   '/pw/test/$testId': typeof PwTestTestIdRoute
+  '/api/books/dl/$bookId': typeof ApiBooksDlBookIdRoute
   '/api/public/affair/$id': typeof ApiPublicAffairIdRoute
   '/api/public/pw/$': typeof ApiPublicPwSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai': typeof AiRoute
-  '/books': typeof BooksRouteWithChildren
+  '/books': typeof BooksRoute
   '/categories': typeof CategoriesRoute
   '/current-affairs': typeof CurrentAffairsRoute
   '/daily-news': typeof DailyNewsRoute
@@ -139,7 +153,9 @@ export interface FileRoutesByTo {
   '/test/$testId': typeof TestTestIdRoute
   '/api/public/affairs': typeof ApiPublicAffairsRoute
   '/api/public/news': typeof ApiPublicNewsRoute
+  '/books/read/$bookId': typeof BooksReadBookIdRoute
   '/pw/test/$testId': typeof PwTestTestIdRoute
+  '/api/books/dl/$bookId': typeof ApiBooksDlBookIdRoute
   '/api/public/affair/$id': typeof ApiPublicAffairIdRoute
   '/api/public/pw/$': typeof ApiPublicPwSplatRoute
 }
@@ -147,18 +163,20 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ai': typeof AiRoute
-  '/books': typeof BooksRouteWithChildren
+  '/books': typeof BooksRoute
   '/categories': typeof CategoriesRoute
   '/current-affairs': typeof CurrentAffairsRoute
   '/daily-news': typeof DailyNewsRoute
   '/pw': typeof PwRouteWithChildren
   '/api/ai': typeof ApiAiRoute
-  '/books/$bookId': typeof BooksBookIdRoute
+  '/books_/$bookId': typeof BooksBookIdRoute
   '/category/$stream': typeof CategoryStreamRoute
   '/test/$testId': typeof TestTestIdRoute
   '/api/public/affairs': typeof ApiPublicAffairsRoute
   '/api/public/news': typeof ApiPublicNewsRoute
+  '/books_/read/$bookId': typeof BooksReadBookIdRoute
   '/pw/test/$testId': typeof PwTestTestIdRoute
+  '/api/books/dl/$bookId': typeof ApiBooksDlBookIdRoute
   '/api/public/affair/$id': typeof ApiPublicAffairIdRoute
   '/api/public/pw/$': typeof ApiPublicPwSplatRoute
 }
@@ -178,7 +196,9 @@ export interface FileRouteTypes {
     | '/test/$testId'
     | '/api/public/affairs'
     | '/api/public/news'
+    | '/books/read/$bookId'
     | '/pw/test/$testId'
+    | '/api/books/dl/$bookId'
     | '/api/public/affair/$id'
     | '/api/public/pw/$'
   fileRoutesByTo: FileRoutesByTo
@@ -196,7 +216,9 @@ export interface FileRouteTypes {
     | '/test/$testId'
     | '/api/public/affairs'
     | '/api/public/news'
+    | '/books/read/$bookId'
     | '/pw/test/$testId'
+    | '/api/books/dl/$bookId'
     | '/api/public/affair/$id'
     | '/api/public/pw/$'
   id:
@@ -209,12 +231,14 @@ export interface FileRouteTypes {
     | '/daily-news'
     | '/pw'
     | '/api/ai'
-    | '/books/$bookId'
+    | '/books_/$bookId'
     | '/category/$stream'
     | '/test/$testId'
     | '/api/public/affairs'
     | '/api/public/news'
+    | '/books_/read/$bookId'
     | '/pw/test/$testId'
+    | '/api/books/dl/$bookId'
     | '/api/public/affair/$id'
     | '/api/public/pw/$'
   fileRoutesById: FileRoutesById
@@ -222,16 +246,19 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AiRoute: typeof AiRoute
-  BooksRoute: typeof BooksRouteWithChildren
+  BooksRoute: typeof BooksRoute
   CategoriesRoute: typeof CategoriesRoute
   CurrentAffairsRoute: typeof CurrentAffairsRoute
   DailyNewsRoute: typeof DailyNewsRoute
   PwRoute: typeof PwRouteWithChildren
   ApiAiRoute: typeof ApiAiRoute
+  BooksBookIdRoute: typeof BooksBookIdRoute
   CategoryStreamRoute: typeof CategoryStreamRoute
   TestTestIdRoute: typeof TestTestIdRoute
   ApiPublicAffairsRoute: typeof ApiPublicAffairsRoute
   ApiPublicNewsRoute: typeof ApiPublicNewsRoute
+  BooksReadBookIdRoute: typeof BooksReadBookIdRoute
+  ApiBooksDlBookIdRoute: typeof ApiBooksDlBookIdRoute
   ApiPublicAffairIdRoute: typeof ApiPublicAffairIdRoute
   ApiPublicPwSplatRoute: typeof ApiPublicPwSplatRoute
 }
@@ -301,12 +328,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategoryStreamRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/books/$bookId': {
-      id: '/books/$bookId'
-      path: '/$bookId'
+    '/books_/$bookId': {
+      id: '/books_/$bookId'
+      path: '/books/$bookId'
       fullPath: '/books/$bookId'
       preLoaderRoute: typeof BooksBookIdRouteImport
-      parentRoute: typeof BooksRoute
+      parentRoute: typeof rootRouteImport
     }
     '/api/ai': {
       id: '/api/ai'
@@ -321,6 +348,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/pw/test/$testId'
       preLoaderRoute: typeof PwTestTestIdRouteImport
       parentRoute: typeof PwRoute
+    }
+    '/books_/read/$bookId': {
+      id: '/books_/read/$bookId'
+      path: '/books/read/$bookId'
+      fullPath: '/books/read/$bookId'
+      preLoaderRoute: typeof BooksReadBookIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/public/news': {
       id: '/api/public/news'
@@ -350,18 +384,15 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAffairIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/books/dl/$bookId': {
+      id: '/api/books/dl/$bookId'
+      path: '/api/books/dl/$bookId'
+      fullPath: '/api/books/dl/$bookId'
+      preLoaderRoute: typeof ApiBooksDlBookIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
-
-interface BooksRouteChildren {
-  BooksBookIdRoute: typeof BooksBookIdRoute
-}
-
-const BooksRouteChildren: BooksRouteChildren = {
-  BooksBookIdRoute: BooksBookIdRoute,
-}
-
-const BooksRouteWithChildren = BooksRoute._addFileChildren(BooksRouteChildren)
 
 interface PwRouteChildren {
   PwTestTestIdRoute: typeof PwTestTestIdRoute
@@ -376,16 +407,19 @@ const PwRouteWithChildren = PwRoute._addFileChildren(PwRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiRoute: AiRoute,
-  BooksRoute: BooksRouteWithChildren,
+  BooksRoute: BooksRoute,
   CategoriesRoute: CategoriesRoute,
   CurrentAffairsRoute: CurrentAffairsRoute,
   DailyNewsRoute: DailyNewsRoute,
   PwRoute: PwRouteWithChildren,
   ApiAiRoute: ApiAiRoute,
+  BooksBookIdRoute: BooksBookIdRoute,
   CategoryStreamRoute: CategoryStreamRoute,
   TestTestIdRoute: TestTestIdRoute,
   ApiPublicAffairsRoute: ApiPublicAffairsRoute,
   ApiPublicNewsRoute: ApiPublicNewsRoute,
+  BooksReadBookIdRoute: BooksReadBookIdRoute,
+  ApiBooksDlBookIdRoute: ApiBooksDlBookIdRoute,
   ApiPublicAffairIdRoute: ApiPublicAffairIdRoute,
   ApiPublicPwSplatRoute: ApiPublicPwSplatRoute,
 }

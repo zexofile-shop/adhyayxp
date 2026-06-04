@@ -1,109 +1,130 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PDFDocument } from "pdf-lib";
 
 // =====================================================================
-// Proxy route — actual upstream URL ko user se HIDE karta hai.
-// User ko browser mein dikhta hai:
-//   https://adhyayx.site/api/books/dl/<BOOK_ID>
-// Backend silently fetch karta hai:
-//   https://api.allcompetitionclasses.co.in/api/v1/books/dl/<BOOK_ID>
+// PDF Proxy Route
+//
+// User URL:  /api/books/dl/<UPSTREAM_HEX_ID>
+//
+// Flow:
+//   1. Call upstream with redirect:"manual" → get 302 + R2 presigned URL
+//   2a. DOWNLOAD (!isView): return 302 redirect directly to R2 → instant CDN download
+//   2b. VIEW   (isView):    proxy through server with Range pass-through (react-pdf
+//       needs same-origin; R2 supports 206 partial content for fast page loading)
 //
 // Query params:
-//   ?view=1      -> inline (browser PDF viewer mein kholo, download nahi)
-//   ?preview=1   -> sirf pehle 10 pages ka sliced PDF return karo (inline)
-//   (default)    -> attachment download as adhyayx-<bookId>.pdf
+//   ?view=2   → inline  (react-pdf preview / Read Online)
+//   ?fn=...   → filename hint for Content-Disposition (URL-encoded)
+//   default   → attachment download → 302 to R2
 // =====================================================================
 
-const UPSTREAM_BASE = "https://api.allcompetitionclasses.co.in/api/v1/books/dl";
-const PREVIEW_PAGES = 10;
+const UPSTREAM_BASE =
+  "https://api.allcompetitionclasses.co.in/api/v1/books/dl";
 
 export const Route = createFileRoute("/api/books/dl/$bookId")({
   server: {
     handlers: {
       GET: async ({ params, request }) => {
-        const { bookId } = params as { bookId: string };
+        const id = (params as { bookId: string }).bookId;
         const url = new URL(request.url);
-        const isView = url.searchParams.get("view") === "1";
-        const isPreview = url.searchParams.get("preview") === "1";
+        const viewParam = url.searchParams.get("view");
+        const isView = viewParam !== null && viewParam !== "0";
+        const fnParam = url.searchParams.get("fn");
 
         try {
-          const upstream = `${UPSTREAM_BASE}/${bookId}`;
-          const res = await fetch(upstream, {
-            headers: {
-              "user-agent": "Mozilla/5.0 (compatible; AdhyayX/1.0)",
-            },
+          // Step 1: get the R2 presigned URL from upstream redirect
+          const upstreamUrl = `${UPSTREAM_BASE}/${id}`;
+          const headRes = await fetch(upstreamUrl, {
+            method: "GET",
+            redirect: "manual",
+            headers: { accept: "*/*" },
           });
 
-          if (!res.ok) {
-            return new Response(
-              JSON.stringify({ error: "File not found" }),
-              { status: 404, headers: { "content-type": "application/json" } }
-            );
+          let r2Url: string | null = null;
+          if (headRes.status >= 300 && headRes.status < 400) {
+            r2Url = headRes.headers.get("location");
           }
 
-          // ---------- PREVIEW MODE: pehle 10 pages slice karke do ----------
-          if (isPreview) {
-            const buf = await res.arrayBuffer();
-            try {
-              const srcPdf = await PDFDocument.load(buf, { ignoreEncryption: true });
-              const totalPages = srcPdf.getPageCount();
-              const take = Math.min(PREVIEW_PAGES, totalPages);
-
-              const previewPdf = await PDFDocument.create();
-              const copied = await previewPdf.copyPages(
-                srcPdf,
-                Array.from({ length: take }, (_, i) => i)
-              );
-              copied.forEach((p) => previewPdf.addPage(p));
-
-              previewPdf.setTitle(`AdhyayX Preview — ${bookId}`);
-              previewPdf.setProducer("AdhyayX");
-              previewPdf.setCreator("AdhyayX");
-
-              const out = await previewPdf.save();
-              return new Response(out, {
-                status: 200,
-                headers: {
-                  "content-type": "application/pdf",
-                  "content-disposition": `inline; filename="adhyayx-preview-${bookId}.pdf"`,
-                  "cache-control": "public, max-age=3600",
-                  "x-robots-tag": "noindex",
-                },
-              });
-            } catch (e) {
-              console.error("preview slice failed, falling back to full inline:", e);
-              return new Response(buf, {
-                status: 200,
-                headers: {
-                  "content-type": "application/pdf",
-                  "content-disposition": "inline",
-                  "cache-control": "public, max-age=3600",
-                  "x-robots-tag": "noindex",
-                },
-              });
+          if (!r2Url) {
+            if (headRes.ok) {
+              return proxyPdf(headRes, id, isView, fnParam, null);
             }
+            return notFound();
           }
 
-          // ---------- VIEW / DOWNLOAD MODE ----------
-          const contentType = res.headers.get("content-type") ?? "application/pdf";
-          const disposition = isView
-            ? `inline; filename="adhyayx-${bookId}.pdf"`
-            : `attachment; filename="adhyayx-${bookId}.pdf"`;
-
-          return new Response(res.body, {
-            status: 200,
-            headers: {
-              "content-type": contentType,
-              "content-disposition": disposition,
-              "cache-control": "public, max-age=3600",
-              "x-robots-tag": "noindex",
-            },
+          // Always proxy through our server (both view AND download).
+          // We never expose the R2 / upstream URL to the browser.
+          // Range header is passed through so large PDFs stream progressively.
+          const rangeHeader = request.headers.get("range");
+          const r2Res = await fetch(r2Url, {
+            method: "GET",
+            redirect: "follow",
+            headers: rangeHeader ? { range: rangeHeader } : {},
           });
+
+          if (!r2Res.ok && r2Res.status !== 206) {
+            return notFound();
+          }
+
+          return proxyPdf(r2Res, id, isView, fnParam, rangeHeader);
         } catch (err) {
           console.error("Books proxy error:", err);
-          return new Response("Server error", { status: 500 });
+          return new Response(JSON.stringify({ error: "Server error" }), {
+            status: 500,
+            headers: { "content-type": "application/json" },
+          });
         }
       },
     },
   },
 });
+
+function notFound() {
+  return new Response(JSON.stringify({ error: "File not found" }), {
+    status: 404,
+    headers: { "content-type": "application/json" },
+  });
+}
+
+function proxyPdf(
+  res: Response,
+  id: string,
+  isView: boolean,
+  fnParam: string | null,
+  rangeHeader: string | null
+) {
+  const contentType = res.headers.get("content-type") ?? "application/pdf";
+  const contentLength = res.headers.get("content-length");
+  const contentRange = res.headers.get("content-range");
+  const acceptRanges = res.headers.get("accept-ranges");
+
+  const safeFilename = fnParam
+    ? fnParam.replace(/[^a-zA-Z0-9.\-_]/g, "-").slice(0, 120)
+    : `adhyayx-${id}.pdf`;
+
+  const disposition = isView
+    ? `inline; filename="${safeFilename}"`
+    : `attachment; filename="${safeFilename}"`;
+
+  const headers: Record<string, string> = {
+    "content-type": contentType.includes("pdf")
+      ? contentType
+      : "application/pdf",
+    "content-disposition": disposition,
+    "cache-control": "public, max-age=3600",
+    "x-robots-tag": "noindex",
+    "x-content-type-options": "nosniff",
+    // CORS headers so pdf.js range requests work
+    "access-control-allow-origin": "*",
+    "access-control-allow-headers": "Range",
+    "access-control-expose-headers":
+      "Content-Range, Accept-Ranges, Content-Length",
+    "accept-ranges": acceptRanges ?? "bytes",
+  };
+
+  if (contentLength) headers["content-length"] = contentLength;
+  if (contentRange) headers["content-range"] = contentRange;
+
+  // Forward 206 Partial Content status for range requests
+  const status = res.status === 206 ? 206 : 200;
+  return new Response(res.body, { status, headers });
+}
