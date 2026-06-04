@@ -36,10 +36,18 @@ export const Route = createFileRoute("/pw")({
 function PwPage() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  const [exam, setExam] = useState<(typeof PW_EXAMS)[number]>("IIT-JEE");
-  const [klass, setKlass] = useState<(typeof PW_CLASSES)[number]>("12");
-  const [batch, setBatch] = useState<{ id: string; catId: string; name: string } | null>(null);
+  const filters = useQuery({
+    queryKey: ["pw", "filters"],
+    queryFn: fetchPwFilters,
+    staleTime: 1000 * 60 * 60,
+  });
 
+  const examList: string[] = filters.data?.exam ?? [...PW_EXAMS_FALLBACK];
+  const classList: string[] = filters.data?.class ?? [...PW_CLASSES_FALLBACK];
+
+  const [exam, setExam] = useState<string>("IIT-JEE");
+  const [klass, setKlass] = useState<string>("12");
+  const [batch, setBatch] = useState<{ id: string; catId: string; name: string } | null>(null);
 
   const batches = useQuery({
     queryKey: ["pw", "batches", exam, klass],
