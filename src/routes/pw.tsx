@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
-import { fetchPwBatches, fetchPwTests, PW_CLASSES, PW_EXAMS } from "@/lib/pwApi";
+import { fetchPwBatches, fetchPwTests, fetchPwFilters, PW_CLASSES_FALLBACK, PW_EXAMS_FALLBACK } from "@/lib/pwApi";
 import { ArrowRight, ChevronLeft, Clock, FileText, Loader as Loader2 } from "lucide-react";
 import {
   Select,
