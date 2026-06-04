@@ -104,15 +104,15 @@ function PwPage() {
               <Select
                 value={exam}
                 onValueChange={(v) => {
-                  setExam(v as (typeof PW_EXAMS)[number]);
+                  setExam(v);
                   setBatch(null);
                 }}
               >
                 <SelectTrigger className="h-10 rounded-xl border-2 border-ink/10 bg-card font-bold text-foreground">
                   <SelectValue placeholder="Select exam" />
                 </SelectTrigger>
-                <SelectContent>
-                  {PW_EXAMS.map((e) => (
+                <SelectContent className="max-h-72">
+                  {examList.map((e) => (
                     <SelectItem key={e} value={e} className="font-semibold">
                       {e}
                     </SelectItem>
@@ -127,17 +127,17 @@ function PwPage() {
               <Select
                 value={klass}
                 onValueChange={(v) => {
-                  setKlass(v as (typeof PW_CLASSES)[number]);
+                  setKlass(v);
                   setBatch(null);
                 }}
               >
                 <SelectTrigger className="h-10 rounded-xl border-2 border-ink/10 bg-card font-bold text-foreground">
                   <SelectValue placeholder="Select class" />
                 </SelectTrigger>
-                <SelectContent>
-                  {PW_CLASSES.map((c) => (
+                <SelectContent className="max-h-72">
+                  {classList.map((c) => (
                     <SelectItem key={c} value={c} className="font-semibold">
-                      {c === "Dropper" ? "Dropper" : `Class ${c}`}
+                      {/^\d+\+?$/.test(c) ? `Class ${c}` : c}
                     </SelectItem>
                   ))}
                 </SelectContent>
