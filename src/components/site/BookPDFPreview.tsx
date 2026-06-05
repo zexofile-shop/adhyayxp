@@ -8,8 +8,8 @@ const PREVIEW_PAGES = 15;
 
 const PDF_OPTIONS = {
   disableStream: false,
-  disableAutoFetch: false,
-  rangeChunkSize: 65536,
+  disableAutoFetch: true,
+  rangeChunkSize: 32768,
 };
 
 export function BookPDFPreview({ url }: { url: string }) {
