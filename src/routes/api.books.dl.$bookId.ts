@@ -121,10 +121,11 @@ function proxyPdf(
       ? contentType
       : "application/pdf",
     "content-disposition": disposition,
-    "cache-control": "public, max-age=3600",
+    // Aggressive cache — book PDFs are immutable. Lets browser & CF cache the
+    // first byte range so subsequent page jumps are instant.
+    "cache-control": "public, max-age=31536000, immutable",
     "x-robots-tag": "noindex",
     "x-content-type-options": "nosniff",
-    // CORS headers so pdf.js range requests work
     "access-control-allow-origin": "*",
     "access-control-allow-headers": "Range",
     "access-control-expose-headers":

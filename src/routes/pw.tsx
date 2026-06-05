@@ -1,9 +1,15 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
-import { fetchPwBatches, fetchPwTests, PW_CLASSES, PW_EXAMS } from "@/lib/pwApi";
+import {
+  fetchPwBatches,
+  fetchPwTests,
+  fetchPwFilters,
+  PW_CLASSES,
+  PW_EXAMS,
+} from "@/lib/pwApi";
 import { ArrowRight, ChevronLeft, Clock, FileText, Loader as Loader2 } from "lucide-react";
 import {
   Select,
@@ -33,13 +39,33 @@ export const Route = createFileRoute("/pw")({
   ),
 });
 
+function classLabel(c: string) {
+  if (c === "Graduation" || c === "Under Graduation" || c === "Dropper") return c;
+  return `Class ${c}`;
+}
+
 function PwPage() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  const [exam, setExam] = useState<(typeof PW_EXAMS)[number]>("IIT-JEE");
-  const [klass, setKlass] = useState<(typeof PW_CLASSES)[number]>("12");
+  const filters = useQuery({
+    queryKey: ["pw", "filters"],
+    queryFn: fetchPwFilters,
+    staleTime: 1000 * 60 * 30,
+  });
+
+  const exams = filters.data?.exam ?? [...PW_EXAMS];
+  const classes = filters.data?.class ?? [...PW_CLASSES];
+
+  const [exam, setExam] = useState<string>("IIT-JEE");
+  const [klass, setKlass] = useState<string>("12");
   const [batch, setBatch] = useState<{ id: string; catId: string; name: string } | null>(null);
 
+  // Snap to first valid value once filters arrive
+  useEffect(() => {
+    if (exams.length && !exams.includes(exam)) setExam(exams[0]);
+    if (classes.length && !classes.includes(klass)) setKlass(classes[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.data]);
 
   const batches = useQuery({
     queryKey: ["pw", "batches", exam, klass],
@@ -52,11 +78,9 @@ function PwPage() {
     enabled: !!batch,
   });
 
-  // If a child route (e.g. /pw/test/$testId) is active, render it instead.
   if (pathname !== "/pw" && pathname !== "/pw/") {
     return <Outlet />;
   }
-
 
   return (
     <div className="min-h-screen bg-background">
@@ -87,7 +111,6 @@ function PwPage() {
             here.
           </p>
 
-          {/* Selectors */}
           <div className="mt-5 grid grid-cols-1 gap-3 sm:max-w-md sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
@@ -96,7 +119,7 @@ function PwPage() {
               <Select
                 value={exam}
                 onValueChange={(v) => {
-                  setExam(v as (typeof PW_EXAMS)[number]);
+                  setExam(v);
                   setBatch(null);
                 }}
               >
@@ -104,7 +127,7 @@ function PwPage() {
                   <SelectValue placeholder="Select exam" />
                 </SelectTrigger>
                 <SelectContent>
-                  {PW_EXAMS.map((e) => (
+                  {exams.map((e) => (
                     <SelectItem key={e} value={e} className="font-semibold">
                       {e}
                     </SelectItem>
@@ -119,7 +142,7 @@ function PwPage() {
               <Select
                 value={klass}
                 onValueChange={(v) => {
-                  setKlass(v as (typeof PW_CLASSES)[number]);
+                  setKlass(v);
                   setBatch(null);
                 }}
               >
@@ -127,9 +150,9 @@ function PwPage() {
                   <SelectValue placeholder="Select class" />
                 </SelectTrigger>
                 <SelectContent>
-                  {PW_CLASSES.map((c) => (
+                  {classes.map((c) => (
                     <SelectItem key={c} value={c} className="font-semibold">
-                      {c === "Dropper" ? "Dropper" : `Class ${c}`}
+                      {classLabel(c)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -150,6 +173,10 @@ function PwPage() {
               <SkeletonGrid />
             ) : batches.isError ? (
               <ErrorBox message="Couldn't load batches. Try a different combination." />
+            ) : (batches.data ?? []).length === 0 ? (
+              <div className="rounded-2xl border-2 border-dashed border-ink/10 p-8 text-center text-sm text-muted-foreground">
+                No batches for {exam} · {classLabel(klass)}.
+              </div>
             ) : (
               <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
                 {(batches.data ?? []).map((b, i) => (

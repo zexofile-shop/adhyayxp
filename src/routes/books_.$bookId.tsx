@@ -5,14 +5,16 @@ import {
   ChevronLeft,
   Download,
   BookOpenCheck,
-  Star,
   Calendar,
   Globe,
   User,
   Building2,
   Layers,
   BookOpen,
+  FileText,
 } from "lucide-react";
+import { useLiveBookPages } from "@/lib/stats";
+import { probePdfPageCount } from "@/lib/pdfPages";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import { fetchAllBooks, formatBytes } from "@/lib/booksApi";
@@ -133,11 +135,6 @@ function BookDetailPage() {
 
             {/* Info */}
             <div className="min-w-0">
-              {book.isFeatured && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-foreground px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-background">
-                  <Star className="h-3 w-3" /> Featured
-                </span>
-              )}
               <h1 className="mt-2 font-display text-2xl font-bold leading-tight sm:text-4xl">
                 {book.title}
               </h1>
@@ -196,6 +193,13 @@ function BookDetailPage() {
 
               {/* Real book info pills — only verified data, no fake stats */}
               <div className="mt-4 flex flex-wrap gap-2">
+                <RealPagesPill
+                  bid={bid}
+                  fallback={book.totalPages}
+                  probeUrl={
+                    hasDirectDownload ? `/api/books/dl/${upstreamId}?view=2` : undefined
+                  }
+                />
                 {book.compressedSizeBytes ? (
                   <InfoPill label="File Size" value={formatBytes(book.compressedSizeBytes)} />
                 ) : null}
@@ -340,6 +344,31 @@ function TagBlock({ title, items }: { title: string; items: string[] }) {
           </span>
         ))}
       </div>
+    </div>
+  );
+}
+
+function RealPagesPill({
+  bid,
+  fallback,
+  probeUrl,
+}: {
+  bid: string;
+  fallback?: number;
+  probeUrl?: string;
+}) {
+  const live = useLiveBookPages(bid, fallback);
+  useEffect(() => {
+    if (!live && probeUrl) probePdfPageCount(bid, probeUrl);
+  }, [bid, live, probeUrl]);
+  if (!live) return null;
+  return (
+    <div className="inline-flex items-baseline gap-1.5 rounded-full border-2 border-ink/10 bg-surface px-3 py-1">
+      <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+        <FileText className="mr-1 inline h-3 w-3" />
+        Pages
+      </span>
+      <span className="font-display text-xs font-bold tabular-nums">{live}</span>
     </div>
   );
 }

@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { Search, X, Download, Eye, ChevronLeft, BookOpen, Star } from "lucide-react";
+import { Search, X, Download, Eye, ChevronLeft, BookOpen, FileText } from "lucide-react";
+import { useLiveBookPages } from "@/lib/stats";
+import { probePdfPageCount } from "@/lib/pdfPages";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import { fetchAllBooks, formatBytes, type Book } from "@/lib/booksApi";
@@ -14,10 +16,10 @@ export const Route = createFileRoute("/books")({
       {
         name: "description",
         content:
-          "Browse 840+ free competitive-exam books — SSC, Bank, UPSC, NDA, JEE, NEET. Powered by EduSpark.",
+          "Browse 770 free competitive-exam books — SSC, Bank, UPSC, NDA, JEE, NEET. Powered by EduSpark.",
       },
       { property: "og:title", content: "Edu's Khazana — Free Books Library" },
-      { property: "og:description", content: "840+ free competitive-exam books — view & download." },
+      { property: "og:description", content: "770 free competitive-exam books — view & download." },
     ],
   }),
   errorComponent: ({ error }) => (
@@ -207,11 +209,6 @@ function BookCard({ book, index }: { book: Book; index: number }) {
             <BookOpen className="h-10 w-10 text-muted-foreground/40" />
           </div>
         )}
-        {book.isFeatured && (
-          <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-foreground px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-background">
-            <Star className="h-2.5 w-2.5" /> Featured
-          </span>
-        )}
       </Link>
       <div className="flex flex-1 flex-col gap-2 p-2.5 sm:p-3">
         <div className="line-clamp-2 font-display text-[12px] font-bold leading-snug sm:text-sm">
@@ -222,6 +219,7 @@ function BookCard({ book, index }: { book: Book; index: number }) {
             by {book.author}
           </div>
         )}
+        <BookPagesMeta book={book} bid={bid} hasDirectDownload={hasDirectDownload} upstreamId={upstreamId} />
         <div className="mt-auto grid grid-cols-2 gap-1.5 pt-1">
           <Link
             to="/books/$bookId"
@@ -258,6 +256,33 @@ function BookCard({ book, index }: { book: Book; index: number }) {
   );
 }
 
+function BookPagesMeta({
+  book,
+  bid,
+  hasDirectDownload,
+  upstreamId,
+}: {
+  book: Book;
+  bid: string;
+  hasDirectDownload: boolean;
+  upstreamId?: string;
+}) {
+  const live = useLiveBookPages(bid, book.totalPages);
+  useEffect(() => {
+    if (!live && hasDirectDownload && upstreamId) {
+      const url = `/api/books/dl/${upstreamId}?view=2`;
+      probePdfPageCount(bid, url);
+    }
+  }, [bid, live, hasDirectDownload, upstreamId]);
+  if (!live) return null;
+  return (
+    <div className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-muted-foreground sm:text-[10px]">
+      <FileText className="h-2.5 w-2.5" />
+      <span className="tabular-nums">{live} pages</span>
+    </div>
+  );
+}
+
 function SearchOverlay({
   q,
   setQ,
@@ -281,7 +306,7 @@ function SearchOverlay({
           autoFocus
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search 770+ books — title, author, exam, subject…"
+          placeholder="Search 770 books — title, author, exam, subject…"
           className="flex-1 bg-transparent text-sm font-medium outline-none placeholder:text-muted-foreground sm:text-base"
         />
         <button

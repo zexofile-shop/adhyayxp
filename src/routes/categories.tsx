@@ -1,11 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { fetchTests } from "@/lib/testApi";
 import { buildCategories } from "@/lib/categories";
+import { fetchPwTotalBatches, fetchPwTotalTests } from "@/lib/pwApi";
+import { useLiveStat, publishStat } from "@/lib/stats";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import { AffairsNewsPreview } from "@/components/site/AffairsNewsPreview";
-import { ArrowRight, ChevronLeft } from "lucide-react";
+import { ArrowRight, ChevronLeft, Zap } from "lucide-react";
 import logoVx from "@/assets/logo-vx.jpg";
 
 export const Route = createFileRoute("/categories")({
@@ -23,6 +26,13 @@ export const Route = createFileRoute("/categories")({
 function CategoriesPage() {
   const { data: tests, isLoading } = useQuery({ queryKey: ["tests"], queryFn: fetchTests });
   const categories = buildCategories(tests ?? []);
+  const pwBatches = useLiveStat("pwBatches", 0);
+  const pwTests = useLiveStat("pwTests", 0);
+
+  useEffect(() => {
+    fetchPwTotalBatches().then((n) => publishStat("pwBatches", n)).catch(() => {});
+    fetchPwTotalTests().then((n) => publishStat("pwTests", n)).catch(() => {});
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -68,8 +78,17 @@ function CategoriesPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
-        <div className="mb-5 text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
-          Test categories
+        <div className="mb-5 flex items-center justify-between gap-3">
+          <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
+            Test categories
+          </div>
+          {pwBatches > 0 && (
+            <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink/10 bg-card px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-foreground">
+              <Zap className="h-3 w-3 text-primary" />
+              {pwBatches}+ PW batches
+              {pwTests > 0 ? ` · ${pwTests}+ tests` : ""}
+            </span>
+          )}
         </div>
         {isLoading ? (
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
