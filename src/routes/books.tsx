@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { Search, X, Download, Eye, ChevronLeft, BookOpen, Star } from "lucide-react";
+import { Search, X, Download, Eye, ChevronLeft, BookOpen, FileText } from "lucide-react";
+import { useLiveBookPages } from "@/lib/stats";
+import { probePdfPageCount } from "@/lib/pdfPages";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import { fetchAllBooks, formatBytes, type Book } from "@/lib/booksApi";
@@ -206,11 +208,6 @@ function BookCard({ book, index }: { book: Book; index: number }) {
           <div className="flex h-full w-full items-center justify-center">
             <BookOpen className="h-10 w-10 text-muted-foreground/40" />
           </div>
-        )}
-        {book.isFeatured && (
-          <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-foreground px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-background">
-            <Star className="h-2.5 w-2.5" /> Featured
-          </span>
         )}
       </Link>
       <div className="flex flex-1 flex-col gap-2 p-2.5 sm:p-3">
