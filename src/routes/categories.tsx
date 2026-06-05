@@ -78,8 +78,17 @@ function CategoriesPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
-        <div className="mb-5 text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
-          Test categories
+        <div className="mb-5 flex items-center justify-between gap-3">
+          <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
+            Test categories
+          </div>
+          {pwBatches > 0 && (
+            <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink/10 bg-card px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-foreground">
+              <Zap className="h-3 w-3 text-primary" />
+              {pwBatches}+ PW batches
+              {pwTests > 0 ? ` · ${pwTests}+ tests` : ""}
+            </span>
+          )}
         </div>
         {isLoading ? (
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
