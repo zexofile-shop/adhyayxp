@@ -219,6 +219,7 @@ function BookCard({ book, index }: { book: Book; index: number }) {
             by {book.author}
           </div>
         )}
+        <BookPagesMeta book={book} bid={bid} hasDirectDownload={hasDirectDownload} upstreamId={upstreamId} />
         <div className="mt-auto grid grid-cols-2 gap-1.5 pt-1">
           <Link
             to="/books/$bookId"
@@ -255,6 +256,33 @@ function BookCard({ book, index }: { book: Book; index: number }) {
   );
 }
 
+function BookPagesMeta({
+  book,
+  bid,
+  hasDirectDownload,
+  upstreamId,
+}: {
+  book: Book;
+  bid: string;
+  hasDirectDownload: boolean;
+  upstreamId?: string;
+}) {
+  const live = useLiveBookPages(bid, book.totalPages);
+  useEffect(() => {
+    if (!live && hasDirectDownload && upstreamId) {
+      const url = `/api/books/dl/${upstreamId}?view=2`;
+      probePdfPageCount(bid, url);
+    }
+  }, [bid, live, hasDirectDownload, upstreamId]);
+  if (!live) return null;
+  return (
+    <div className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-muted-foreground sm:text-[10px]">
+      <FileText className="h-2.5 w-2.5" />
+      <span className="tabular-nums">{live} pages</span>
+    </div>
+  );
+}
+
 function SearchOverlay({
   q,
   setQ,
@@ -278,7 +306,7 @@ function SearchOverlay({
           autoFocus
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search 770+ books — title, author, exam, subject…"
+          placeholder="Search 770 books — title, author, exam, subject…"
           className="flex-1 bg-transparent text-sm font-medium outline-none placeholder:text-muted-foreground sm:text-base"
         />
         <button
