@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchTests } from "@/lib/testApi";
 import { buildCategories } from "@/lib/categories";
+import { fetchPwTotalTests, fetchPwTotalBatches } from "@/lib/pwApi";
+import { useLiveStat, publishStat } from "@/lib/stats";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import {
@@ -44,6 +46,19 @@ function HomePage() {
   const categories = buildCategories(tests ?? []);
   const totalTests = tests?.length ?? 0;
 
+  // Live PW counts via Firebase (cached) — instant render. Refresh in BG.
+  const livePwTests = useLiveStat("pwTests", 0);
+  const livePwBatches = useLiveStat("pwBatches", 0);
+
+  useEffect(() => {
+    // Background refresh once per session
+    fetchPwTotalTests().then((n) => publishStat("pwTests", n)).catch(() => {});
+    fetchPwTotalBatches().then((n) => publishStat("pwBatches", n)).catch(() => {});
+  }, []);
+
+  const combinedTests = totalTests + livePwTests;
+  const combinedCategories = categories.length + livePwBatches;
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -81,8 +96,8 @@ function HomePage() {
 
               <div className="mt-7 flex max-w-md flex-wrap gap-x-7 gap-y-3 text-left">
                 {[
-                  { k: isLoading ? "…" : String(totalTests || 0), v: totalTests === 1 ? "Active test" : "Active tests" },
-                  { k: isLoading ? "…" : String(categories.length || 0), v: categories.length === 1 ? "Category" : "Categories" },
+                  { k: isLoading && combinedTests === 0 ? "…" : `${combinedTests}+`, v: "Active tests" },
+                  { k: isLoading && combinedCategories === 0 ? "…" : `${combinedCategories}+`, v: "Categories" },
                   { k: "Free", v: "No signup needed" },
                 ].map((s) => (
                   <div key={s.v}>
