@@ -347,3 +347,28 @@ function TagBlock({ title, items }: { title: string; items: string[] }) {
     </div>
   );
 }
+
+function RealPagesPill({
+  bid,
+  fallback,
+  probeUrl,
+}: {
+  bid: string;
+  fallback?: number;
+  probeUrl?: string;
+}) {
+  const live = useLiveBookPages(bid, fallback);
+  useEffect(() => {
+    if (!live && probeUrl) probePdfPageCount(bid, probeUrl);
+  }, [bid, live, probeUrl]);
+  if (!live) return null;
+  return (
+    <div className="inline-flex items-baseline gap-1.5 rounded-full border-2 border-ink/10 bg-surface px-3 py-1">
+      <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+        <FileText className="mr-1 inline h-3 w-3" />
+        Pages
+      </span>
+      <span className="font-display text-xs font-bold tabular-nums">{live}</span>
+    </div>
+  );
+}
