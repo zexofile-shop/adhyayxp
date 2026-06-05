@@ -1,11 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { fetchTests } from "@/lib/testApi";
 import { buildCategories } from "@/lib/categories";
+import { fetchPwTotalBatches, fetchPwTotalTests } from "@/lib/pwApi";
+import { useLiveStat, publishStat } from "@/lib/stats";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import { AffairsNewsPreview } from "@/components/site/AffairsNewsPreview";
-import { ArrowRight, ChevronLeft } from "lucide-react";
+import { ArrowRight, ChevronLeft, Zap } from "lucide-react";
 import logoVx from "@/assets/logo-vx.jpg";
 
 export const Route = createFileRoute("/categories")({
@@ -23,6 +26,13 @@ export const Route = createFileRoute("/categories")({
 function CategoriesPage() {
   const { data: tests, isLoading } = useQuery({ queryKey: ["tests"], queryFn: fetchTests });
   const categories = buildCategories(tests ?? []);
+  const pwBatches = useLiveStat("pwBatches", 0);
+  const pwTests = useLiveStat("pwTests", 0);
+
+  useEffect(() => {
+    fetchPwTotalBatches().then((n) => publishStat("pwBatches", n)).catch(() => {});
+    fetchPwTotalTests().then((n) => publishStat("pwTests", n)).catch(() => {});
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
