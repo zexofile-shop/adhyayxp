@@ -16,10 +16,10 @@ export const Route = createFileRoute("/books")({
       {
         name: "description",
         content:
-          "Browse 840+ free competitive-exam books — SSC, Bank, UPSC, NDA, JEE, NEET. Powered by EduSpark.",
+          "Browse 770 free competitive-exam books — SSC, Bank, UPSC, NDA, JEE, NEET. Powered by EduSpark.",
       },
       { property: "og:title", content: "Edu's Khazana — Free Books Library" },
-      { property: "og:description", content: "840+ free competitive-exam books — view & download." },
+      { property: "og:description", content: "770 free competitive-exam books — view & download." },
     ],
   }),
   errorComponent: ({ error }) => (
