@@ -5,14 +5,16 @@ import {
   ChevronLeft,
   Download,
   BookOpenCheck,
-  Star,
   Calendar,
   Globe,
   User,
   Building2,
   Layers,
   BookOpen,
+  FileText,
 } from "lucide-react";
+import { useLiveBookPages } from "@/lib/stats";
+import { probePdfPageCount } from "@/lib/pdfPages";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import { fetchAllBooks, formatBytes } from "@/lib/booksApi";
@@ -133,11 +135,6 @@ function BookDetailPage() {
 
             {/* Info */}
             <div className="min-w-0">
-              {book.isFeatured && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-foreground px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-background">
-                  <Star className="h-3 w-3" /> Featured
-                </span>
-              )}
               <h1 className="mt-2 font-display text-2xl font-bold leading-tight sm:text-4xl">
                 {book.title}
               </h1>
