@@ -167,23 +167,23 @@ function BooksPage() {
 }
 
 function toFilename(title: string): string {
-  const slug = title
-    .replace(/[^a-zA-Z0-9 ]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 100);
-  return `AdhyayX - ${slug}.pdf`;
+  return (
+    title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 80) + ".pdf"
+  );
 }
 
 function BookCard({ book, index }: { book: Book; index: number }) {
   const bid = book.id || book._id;
   const upstreamId = book.downloadUrl?.split("/").pop();
   const hasDirectDownload = !!upstreamId;
-  const filename = toFilename(book.title);
   const proxyDownload = hasDirectDownload
-    ? `/api/books/dl/${upstreamId}?fn=${encodeURIComponent(filename)}`
+    ? `/api/books/dl/${upstreamId}`
     : (book.externalDownloadUrl ?? null);
-
+  const filename = toFilename(book.title);
 
   return (
     <div

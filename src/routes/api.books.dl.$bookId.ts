@@ -51,9 +51,20 @@ export const Route = createFileRoute("/api/books/dl/$bookId")({
             return notFound();
           }
 
-          // Always proxy through our server (both view AND download).
-          // We never expose the R2 / upstream URL to the browser.
-          // Range header is passed through so large PDFs stream progressively.
+          // Step 2a — DOWNLOAD: redirect browser directly to R2 (instant CDN!)
+          if (!isView) {
+            return new Response(null, {
+              status: 302,
+              headers: {
+                location: r2Url,
+                "cache-control": "no-store",
+              },
+            });
+          }
+
+          // Step 2b — VIEW: proxy with Range header pass-through
+          // react-pdf (pdf.js) sends Range requests; R2 returns 206 Partial Content.
+          // This lets pdf.js load only the pages it needs, not the whole file.
           const rangeHeader = request.headers.get("range");
           const r2Res = await fetch(r2Url, {
             method: "GET",
@@ -65,7 +76,7 @@ export const Route = createFileRoute("/api/books/dl/$bookId")({
             return notFound();
           }
 
-          return proxyPdf(r2Res, id, isView, fnParam, rangeHeader);
+          return proxyPdf(r2Res, id, true, fnParam, rangeHeader);
         } catch (err) {
           console.error("Books proxy error:", err);
           return new Response(JSON.stringify({ error: "Server error" }), {

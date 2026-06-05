@@ -22,12 +22,13 @@ const BookPDFPreview = lazy(() =>
 );
 
 function toFilename(title: string): string {
-  const slug = title
-    .replace(/[^a-zA-Z0-9 ]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 100);
-  return `AdhyayX - ${slug}.pdf`;
+  return (
+    title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 80) + ".pdf"
+  );
 }
 
 export const Route = createFileRoute("/books_/$bookId")({

@@ -56,15 +56,15 @@ function HomePage() {
             <div style={{ animation: "fade-up 0.5s both" }}>
               <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink/10 bg-card px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-foreground shadow-soft">
                 <GraduationCap className="h-3 w-3 text-primary" />
-                AdhyayX&nbsp;: Har Adhyay, Ek Nayi Jeet
+                AdhyayX
               </span>
-              {/* Headline — bolder & larger per user request */}
-              <h1 className="mt-4 font-display text-[28px] font-bold leading-[1.15] tracking-tight text-foreground sm:text-[38px] lg:text-[44px]">
+              {/* Headline — user-specified format, compact */}
+              <h1 className="mt-4 font-display text-[22px] font-bold leading-[1.2] tracking-tight text-foreground sm:text-[28px] lg:text-[32px]">
                 Crack <span className="text-primary">JEE, NEET</span>, boards &amp;<br />
                 competitive exams with<br />
                 exam-grade mocks.
               </h1>
-              <p className="mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
+              <p className="mt-3 max-w-xl text-xs text-muted-foreground sm:text-sm">
                 Plus <span className="font-bold text-foreground">daily news</span> and
                 date-wise <span className="font-bold text-foreground">current affairs</span>
                 {" "}— everything in one place.
