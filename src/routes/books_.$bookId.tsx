@@ -193,6 +193,13 @@ function BookDetailPage() {
 
               {/* Real book info pills — only verified data, no fake stats */}
               <div className="mt-4 flex flex-wrap gap-2">
+                <RealPagesPill
+                  bid={bid}
+                  fallback={book.totalPages}
+                  probeUrl={
+                    hasDirectDownload ? `/api/books/dl/${upstreamId}?view=2` : undefined
+                  }
+                />
                 {book.compressedSizeBytes ? (
                   <InfoPill label="File Size" value={formatBytes(book.compressedSizeBytes)} />
                 ) : null}
