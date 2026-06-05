@@ -81,6 +81,11 @@ export interface PwLeaderboard {
   rankScores: [number, number][];
 }
 
+export interface PwFilters {
+  exam: string[];
+  class: string[];
+}
+
 async function getJson<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}/${path}`);
   if (!res.ok) throw new Error(`PW fetch failed: ${path}`);
@@ -88,20 +93,60 @@ async function getJson<T>(path: string): Promise<T> {
   return j.data;
 }
 
+// Live values from /api/public/pw/filters
 export const PW_EXAMS = [
   "IIT-JEE",
   "NEET",
-  "UPSC",
-  "SSC",
-  "GATE",
-  "CUET",
-  "Defence",
+  "BOARD_EXAM",
+  "AE/JE",
   "Banking",
-  "State PSC",
-  "Railways",
+  "Bihar Exams",
+  "BPSC",
+  "CA",
+  "COMMERCE",
+  "CSIR NET",
+  "CUET UG",
+  "FOUNDATION",
+  "GATE",
+  "IIT JAM",
+  "LAW",
+  "MBA",
+  "NDA",
+  "NSAT",
+  "OLYMPIAD",
+  "PRE_FOUNDATION",
+  "Railway",
+  "SCHOOL_PREPARATION",
+  "SSC",
+  "UGC NET",
+  "UP Exams",
+  "UPPSC",
+  "UPSC",
 ] as const;
 
-export const PW_CLASSES = ["9", "10", "11", "12", "Dropper"] as const;
+export const PW_CLASSES = [
+  "12+",
+  "12",
+  "11",
+  "10",
+  "9",
+  "8",
+  "7",
+  "6",
+  "Graduation",
+  "Under Graduation",
+] as const;
+
+let filtersCache: Promise<PwFilters> | null = null;
+export const fetchPwFilters = (): Promise<PwFilters> => {
+  if (!filtersCache) {
+    filtersCache = getJson<PwFilters>("filters").catch((e) => {
+      filtersCache = null;
+      throw e;
+    });
+  }
+  return filtersCache;
+};
 
 export const fetchPwBatches = (exam: string, klass: string) =>
   getJson<PwBatch[]>(
@@ -125,46 +170,34 @@ export const fetchPwInstructions = (testId: string) =>
 export const fetchPwLeaderboard = (testId: string) =>
   getJson<PwLeaderboard>(`tests/${encodeURIComponent(testId)}/leaderboard`);
 
-export const fetchPwTotalBatches = async (): Promise<number> => {
+async function fetchAllBatches(): Promise<PwBatch[]> {
+  const f = await fetchPwFilters().catch(() => ({
+    exam: [...PW_EXAMS],
+    class: [...PW_CLASSES],
+  }));
   const batchResults = await Promise.allSettled(
-    PW_EXAMS.flatMap((exam) =>
-      PW_CLASSES.map((klass) => fetchPwBatches(exam, klass))
+    f.exam.flatMap((exam) =>
+      f.class.map((klass) => fetchPwBatches(exam, klass))
     )
   );
-
-  const allBatches = batchResults
+  const all = batchResults
     .filter(
       (r): r is PromiseFulfilledResult<PwBatch[]> => r.status === "fulfilled"
     )
     .flatMap((r) => r.value);
+  return Array.from(new Map(all.map((b) => [b._id, b])).values());
+}
 
-  return new Map(allBatches.map((b) => [b._id, b])).size;
+export const fetchPwTotalBatches = async (): Promise<number> => {
+  const all = await fetchAllBatches();
+  return all.length;
 };
 
 export const fetchPwTotalTests = async (): Promise<number> => {
-  // Step 1: fetch batches for all exams × all classes in parallel
-  const batchResults = await Promise.allSettled(
-    PW_EXAMS.flatMap((exam) =>
-      PW_CLASSES.map((klass) => fetchPwBatches(exam, klass))
-    )
-  );
-
-  const allBatches = batchResults
-    .filter(
-      (r): r is PromiseFulfilledResult<PwBatch[]> => r.status === "fulfilled"
-    )
-    .flatMap((r) => r.value);
-
-  // Deduplicate by _id
-  const uniqueBatches = Array.from(
-    new Map(allBatches.map((b) => [b._id, b])).values()
-  );
-
-  // Step 2: fetch test list for each unique batch in parallel
+  const unique = await fetchAllBatches();
   const testResults = await Promise.allSettled(
-    uniqueBatches.map((b) => fetchPwTests(b._id, b.testCatId))
+    unique.map((b) => fetchPwTests(b._id, b.testCatId))
   );
-
   return testResults
     .filter(
       (r): r is PromiseFulfilledResult<PwTestSummary[]> =>
