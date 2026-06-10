@@ -96,7 +96,7 @@ function BookDetailPage() {
   const hasDirectDownload = !!upstreamId;
   const downloadPath = hasDirectDownload
     ? `/api/books/dl/${upstreamId}?fn=${encodeURIComponent(filename)}`
-    : (book.externalDownloadUrl ?? null);
+    : null;
   const viewPath = hasDirectDownload
     ? `/api/books/dl/${upstreamId}?view=2&fn=${encodeURIComponent(filename)}`
     : null;
@@ -174,8 +174,8 @@ function BookDetailPage() {
                   <a
                     href={downloadPath}
                     download={hasDirectDownload ? filename : undefined}
-                    target={hasDirectDownload ? undefined : "_blank"}
-                    rel={hasDirectDownload ? undefined : "noopener noreferrer"}
+                    target={undefined}
+                    rel={undefined}
                     className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-bold text-background shadow-elevated transition-opacity hover:opacity-90"
                   >
                     <Download className="h-4 w-4" /> Download PDF
