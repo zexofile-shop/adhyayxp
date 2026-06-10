@@ -34,6 +34,18 @@ export interface BooksPayload {
 
 let cache: Promise<BooksPayload> | null = null;
 
+function normalizeBooksPayload(payload: BooksPayload): BooksPayload {
+  const seen = new Set<string>();
+  const books = payload.data.filter((book) => {
+    if (!book.downloadUrl) return false;
+    const key = book.downloadUrl || book._id || book.id || book.titleSlug || book.title;
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  return { total: books.length, data: books };
+}
+
 export function fetchAllBooks(): Promise<BooksPayload> {
   if (!cache) {
     cache = fetch("/data/books.json")
@@ -41,6 +53,7 @@ export function fetchAllBooks(): Promise<BooksPayload> {
         if (!r.ok) throw new Error("books load failed");
         return r.json() as Promise<BooksPayload>;
       })
+      .then(normalizeBooksPayload)
       .catch((e) => {
         cache = null;
         throw e;
