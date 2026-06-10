@@ -73,8 +73,11 @@ function HomePage() {
                 <GraduationCap className="h-3 w-3 text-primary" />
                 AdhyayX
               </span>
-              {/* Headline — user-specified format, compact */}
-              <h1 className="mt-4 font-display text-[22px] font-bold leading-[1.2] tracking-tight text-foreground sm:text-[28px] lg:text-[32px]">
+              <div className="mt-4 font-display text-lg font-bold leading-tight text-primary sm:text-2xl">
+                AdhyayX : Har Adhyay, Ek Nayi Jeet
+              </div>
+              {/* Headline — user-specified format, intentionally large */}
+              <h1 className="mt-3 font-display text-[34px] font-bold leading-[1.06] text-foreground sm:text-[52px] lg:text-[64px]">
                 Crack <span className="text-primary">JEE, NEET</span>, boards &amp;<br />
                 competitive exams with<br />
                 exam-grade mocks.
