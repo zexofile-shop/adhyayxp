@@ -182,9 +182,7 @@ function BookCard({ book, index }: { book: Book; index: number }) {
   const bid = book.id || book._id;
   const upstreamId = book.downloadUrl?.split("/").pop();
   const hasDirectDownload = !!upstreamId;
-  const proxyDownload = hasDirectDownload
-    ? `/api/books/dl/${upstreamId}`
-    : (book.externalDownloadUrl ?? null);
+  const proxyDownload = hasDirectDownload ? `/api/books/dl/${upstreamId}` : null;
   const filename = toFilename(book.title);
 
   return (
@@ -232,8 +230,8 @@ function BookCard({ book, index }: { book: Book; index: number }) {
             <a
               href={proxyDownload}
               download={hasDirectDownload ? filename : undefined}
-              target={hasDirectDownload ? undefined : "_blank"}
-              rel={hasDirectDownload ? undefined : "noopener noreferrer"}
+              target={undefined}
+              rel={undefined}
               className="inline-flex items-center justify-center gap-1 rounded-full bg-foreground px-2 py-1.5 text-[10px] font-bold text-background transition-opacity hover:opacity-90 sm:text-[11px]"
             >
               <Download className="h-3 w-3" /> Get
