@@ -14,8 +14,8 @@ export const Route = createFileRoute("/category/$stream")({
     const stream = decodeURIComponent(params.stream);
     return {
       meta: [
-        { title: `${stream} Tests — VidyaX by EduSpark` },
-        { name: "description", content: `All ${stream} mock tests on VidyaX.` },
+        { title: `${stream} Tests — AdhyayX` },
+        { name: "description", content: `All ${stream} mock tests on AdhyayX.` },
       ],
     };
   },
