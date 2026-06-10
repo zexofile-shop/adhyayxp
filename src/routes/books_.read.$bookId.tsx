@@ -172,7 +172,7 @@ function BookReaderPage() {
     : null;
   const downloadPath = hasDirectDownload
     ? `/api/books/dl/${upstreamId}?fn=${encodeURIComponent(filename)}`
-    : (book.externalDownloadUrl ?? null);
+    : null;
 
   const goPrev = () => setCurrentPage((p) => Math.max(p - 1, 1));
   const goNext = () => setCurrentPage((p) => Math.min(p + 1, numPages ?? p));
@@ -254,8 +254,8 @@ function BookReaderPage() {
             <a
               href={downloadPath}
               download={hasDirectDownload ? filename : undefined}
-              target={hasDirectDownload ? undefined : "_blank"}
-              rel={hasDirectDownload ? undefined : "noopener noreferrer"}
+              target={undefined}
+              rel={undefined}
               className="ml-1 inline-flex items-center gap-1 rounded-full border border-current/20 bg-current/10 px-3 py-1 text-[11px] font-bold opacity-90 transition-opacity hover:opacity-100"
             >
               <Download className="h-3 w-3" />
